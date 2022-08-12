@@ -6,6 +6,71 @@ bcrypt = Bcrypt()
 db = SQLAlchemy()
 
 
+class Friend(db.Model):
+
+    """Relationship between two users that are friends"""
+
+    __tablename__ = 'friends'
+
+    user_1 = db.Column(db.Integer, db.ForeignKey(
+        'users.id', ondelete='cascade'), primary_key=True)
+
+    user_2 = db.Column(db.Integer, db.ForeignKey(
+        'users.id', ondelete='cascade'), primary_key=True)
+
+
+class Like(db.Model):
+
+    """Mapping a song to a user for likes"""
+
+    __tablename__ = 'likes'
+
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id', ondelete='cascade'), primary_key=True)
+
+    song_id = db.Column(db.Integer, db.ForeignKey(
+        'songs.id', ondelete='cascade'), primary_key=True)
+
+
+class PlaylistSong(db.Model):
+
+    """Mapping a song to a playlist"""
+
+    __tablename__ = 'playlists_songs'
+
+    playlist_id = db.Column(db.Integer, db.ForeignKey(
+        'playlists.id', ondelete='cascade'), primary_key=True)
+
+    song_id = db.Column(db.Integer, db.ForeignKey(
+        'songs.id', ondelete='cascade'), primary_key=True)
+
+
+class BandMember(db.Model):
+
+    """Relationship for members of a band"""
+
+    __tablename__ = 'bands_members'
+
+    band_id = db.Column(db.Integer, db.ForeignKey(
+        'bands.id', ondelete='cascade'), primary_key=True)
+
+    user_id = db.Column(db.Integer, db.ForeignKey(
+        'users.id', ondelete='cascade'), primary_key=True)
+
+
+class BandPlaylist(db.Model):
+
+    """Relationship for playlists that belong to a band"""
+
+    __tablename__ = 'bands_playlists'
+
+    band_id = db.Column(db.Integer, db.ForeignKey(
+        'bands.id', ondelete='cascade'), primary_key=True)
+
+    playlist_id = db.Column(db.Integer, db.ForeignKey(
+        'playlists.id', ondelete='cascade'), primary_key=True)
+
+
 class User(db.Model):
 
     """A User in the application"""
@@ -18,11 +83,11 @@ class User(db.Model):
 
     email = db.Column(db.Text, nullable=False, unique=True)
 
-    password = db.Column(db.String(50), nullable=False)
+    password = db.Column(db.Text, nullable=False)
 
-    first_name = db.Column(db.String(30), nullable=False)
+    first_name = db.Column(db.String(20), nullable=False)
 
-    last_name = db.Column(db.String(50), nullable=True)
+    last_name = db.Column(db.String(30), nullable=True)
 
     profile_pic = db.Column(
         db.Text, nullable=True, default='https://www.kindpng.com/picc/m/451-4517876_default-profile-hd-png-download.png')
@@ -42,18 +107,48 @@ class User(db.Model):
     all_playlists = db.relationship(
         'Playlist', secondary='playlists_users', backref='users')
 
-    friends = db.relationship('User', secondary='friends')
+    friends = db.relationship('User', secondary='friends', primaryjoin=(Friend.user_1 == id),
+                              secondaryjoin=(Friend.user_2 == id))
 
+    def __repr__(self):
 
-class Friend(db.Model):
+        return f"<User #{self.id}, username: {self.username}, email: {self.email}>"
 
-    __tablename__ = 'friends'
+    @classmethod
+    def register(cls, username, email, password, first_name, last_name):
+        """Sign up user.
 
-    user_1 = db.Column(db.Integer, db.ForeignKey(
-        'users.id', ondelete='cascade'), primary_key=True)
+        Hashes password and adds user to system.
+        """
 
-    user_2 = db.Column(db.Integer, db.ForeignKey(
-        'users.id', ondelete='cascade'), primary_key=True)
+        hashed_pwd = bcrypt.generate_password_hash(password).decode('UTF-8')
+
+        user = User(
+            username=username,
+            email=email,
+            password=hashed_pwd,
+            first_name=first_name,
+            last_name=last_name
+        )
+
+        db.session.add(user)
+        return user
+
+    @classmethod
+    def authenticate(cls, username, password):
+        """Find user with `username` and `password`.
+
+        If can't find matching user (or if password is wrong), returns False.
+        """
+
+        user = cls.query.filter_by(username=username).first()
+
+        if user:
+            is_auth = bcrypt.check_password_hash(user.password, password)
+            if is_auth:
+                return user
+
+        return False
 
 
 class Instrument(db.Model):
@@ -67,6 +162,10 @@ class Instrument(db.Model):
     name = db.Column(db.String(50), nullable=False)
 
     icon = db.Column(db.Text, nullable=False)
+
+    def __repr__(self):
+
+        return f"<Instrument: {self.name}>"
 
 
 class Song(db.Model):
@@ -83,18 +182,9 @@ class Song(db.Model):
 
     tab_url = db.Column(db.Text, nullable=False)
 
+    def __repr__(self):
 
-class Like(db.Model):
-
-    """Mapping a song to a user for likes"""
-
-    __tablename__ = 'likes'
-
-    user_id = db.Column(db.Integer, db.ForeignKey(
-        'users.id', ondelete='cascade'), primary_key=True)
-
-    song_id = db.Column(db.Integer, db.ForeignKey(
-        'songs.id', ondelete='cascade'), primary_key=True)
+        return f"<{self.title} by {self.artist}>"
 
 
 class Playlist(db.Model):
@@ -120,18 +210,9 @@ class Playlist(db.Model):
 
     songs = db.relationship('Song', secondary='playlists_songs')
 
+    def __repr__(self):
 
-class PlaylistSong(db.Model):
-
-    """Mapping a song to a playlist"""
-
-    __tablename__ = 'playlists_songs'
-
-    playlist_id = db.Column(db.Integer, db.ForeignKey(
-        'playlists.id', ondelete='cascade'), primary_key=True)
-
-    song_id = db.Column(db.Integer, db.ForeignKey(
-        'songs.id', ondelete='cascade'), primary_key=True)
+        return f"<Playlist {self.name} created by {self.creator}>"
 
 
 class PlaylistUser(db.Model):
@@ -149,11 +230,13 @@ class PlaylistUser(db.Model):
 
 class Band(db.Model):
 
+    """Model for a 'band' or group of users in the system"""
+
     __tablename__ = 'bands'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-    name = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(50), nullable=False, unique=True)
 
     genre = db.Column(db.String(30), nullable=True)
 
@@ -169,32 +252,18 @@ class Band(db.Model):
 
     messages = db.relationship('Message')
 
+    def __repr__(self):
 
-class BandMember(db.Model):
-
-    __tablename__ = 'bands_members'
-
-    band_id = db.Column(db.Integer, db.ForeignKey(
-        'bands.id', ondelete='cascade'), primary_key=True)
-
-    user_id = db.Column(db.Integer, db.ForeignKey(
-        'users.id', ondelete='cascade'), primary_key=True)
-
-
-class BandPlaylist(db.Model):
-
-    __tablename__ = 'bands_playlists'
-
-    band_id = db.Column(db.Integer, db.ForeignKey(
-        'bands.id', ondelete='cascade'))
-
-    playlist_id = db.Column(db.Integer, db.ForeignKey(
-        'playlists.id', ondelete='cascade'))
+        return f"<Band {self.name}>"
 
 
 class Message(db.Model):
 
+    """Model for messages in the system, either between users or within a band"""
+
     __tablename__ = 'messages'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     author_id = db.Column(
         db.Integer, db.ForeignKey('users.id'), nullable=False)
@@ -210,3 +279,12 @@ class Message(db.Model):
 
     time_sent = db.Column(db.DateTime, nullable=False,
                           default=datetime.utcnow())
+
+
+def connect_db(app):
+    """
+    Connect this database to provided Flask app.
+    """
+
+    db.app = app
+    db.init_app(app)

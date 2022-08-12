@@ -1,0 +1,96 @@
+{% extends 'base.html'%}
+
+{% block content %}
+
+  <div class="wrapper ">
+    <div class="sidebar" data-color="white" data-active-color="danger">
+      <div class="logo">
+        <a href="/" class="simple-text logo-mini">
+          <div class="logo-image-small">
+            <img src="{{user.profile_pic}}">
+          </div>
+        </a>
+        <a href="/" class="simple-text logo-normal">
+          Tabular
+
+        </a>
+      </div>
+      
+      <div class="sidebar-wrapper">
+        <ul class="nav">
+          
+          <li class="{% block dashboard %}{% endblock %}">
+            <a href="/">
+              <i class="nc-icon nc-bank"></i>
+              <p>Dashboard</p>
+            </a>
+          </li>
+          
+          
+          <li class="{% block search %}{% endblock %}">
+            <a href="search.html">
+              <i class="nc-icon nc-diamond"></i>
+              <p>Search</p>
+            </a>
+          </li>
+          
+          
+          <li class="{% block playlists %}{% endblock %}">
+            <a href="{{url_for('my_playlists')}}">
+              <i class="nc-icon nc-pin-3"></i>
+              <p>Playlists</p>
+            </a>
+          </li>
+          
+          
+          <li class="{% block friends %}{% endblock %}">
+            <a href="/friends">
+              <i class="nc-icon nc-bell-55"></i>
+              <p>Friends</p>
+            </a>
+          </li>
+          
+          
+          <li class="{% block bands %}{% endblock %}">
+            <a href="bands/list.html">
+              <i class="nc-icon nc-tile-56"></i>
+              <p>Bands</p>
+            </a>
+          </li>
+          
+          
+          <li class="{% block user_profile %}{% endblock %}">
+            <a href="users/profile.html">
+              <i class="nc-icon nc-single-02"></i>
+              <p>User Profile</p>
+            </a>
+          </li>
+          
+
+        </ul>
+      </div>
+    </div>
+
+    
+    <div class="main-panel">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-absolute fixed-top navbar-transparent">
+        <div class="container-fluid">
+          <div class="navbar-wrapper">
+            {% block panel_title %}<a class="navbar-brand" href="/users/profile">{{user.username}}</a> {% endblock %}
+          </div>
+          <a class="navbar-link justify-content-end" href="/logout">Logout</a>
+      </nav>
+      <!-- End Navbar -->
+
+      
+      <div class="content">
+        {% block panel_content %}
+
+        {% endblock %}
+      </div>
+      
+    </div>
+  </div>
+
+{% endblock %}
