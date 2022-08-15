@@ -5,11 +5,6 @@
   <div class="wrapper ">
     <div class="sidebar" data-color="white" data-active-color="danger">
       <div class="logo">
-        <a href="/" class="simple-text logo-mini">
-          <div class="logo-image-small">
-            <img src="{{user.profile_pic}}">
-          </div>
-        </a>
         <a href="/" class="simple-text logo-normal">
           Tabular
 
@@ -28,8 +23,8 @@
           
           
           <li class="{% block search %}{% endblock %}">
-            <a href="search.html">
-              <i class="nc-icon nc-diamond"></i>
+            <a href="{{url_for('search_page')}}">
+              <i class="nc-icon nc-zoom-split"></i>
               <p>Search</p>
             </a>
           </li>
@@ -37,31 +32,39 @@
           
           <li class="{% block playlists %}{% endblock %}">
             <a href="{{url_for('my_playlists')}}">
-              <i class="nc-icon nc-pin-3"></i>
+              <i class="nc-icon nc-button-play"></i>
               <p>Playlists</p>
             </a>
           </li>
           
           
           <li class="{% block friends %}{% endblock %}">
-            <a href="/friends">
-              <i class="nc-icon nc-bell-55"></i>
+            <a href="">
+              <i class="nc-icon nc-satisfied"></i>
               <p>Friends</p>
             </a>
           </li>
           
           
           <li class="{% block bands %}{% endblock %}">
-            <a href="bands/list.html">
-              <i class="nc-icon nc-tile-56"></i>
+            <a href="">
+              <i class="nc-icon nc-note-03"></i>
               <p>Bands</p>
             </a>
           </li>
+
+          <li class="{% block messages %}{% endblock %}">
+            <a href="">
+              <i class="nc-icon nc-chat-33"></i>
+              <p>Messages</p>
+            </a>
+          </li>
+
           
           
           <li class="{% block user_profile %}{% endblock %}">
-            <a href="users/profile.html">
-              <i class="nc-icon nc-single-02"></i>
+            <a href="{{url_for('my_profile')}}">
+              <i class="nc-icon nc-circle-10"></i>
               <p>User Profile</p>
             </a>
           </li>
@@ -77,9 +80,16 @@
       <nav class="navbar navbar-expand-lg navbar-absolute fixed-top navbar-transparent">
         <div class="container-fluid">
           <div class="navbar-wrapper">
-            {% block panel_title %}<a class="navbar-brand" href="/users/profile">{{user.username}}</a> {% endblock %}
+            {% block panel_title %}{% endblock %}
+
           </div>
-          <a class="navbar-link justify-content-end" href="/logout">Logout</a>
+          <div class="collapse navbar-collapse justify-content-end">
+            <a class="navbar-link mr-4" href="{{url_for('my_profile')}}">{{user.username}}</a>
+            <a class="navbar-link" href="/logout">Logout</a>
+          </div>
+          
+          
+
       </nav>
       <!-- End Navbar -->
 

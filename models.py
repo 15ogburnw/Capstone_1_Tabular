@@ -2,6 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 
+
 bcrypt = Bcrypt()
 db = SQLAlchemy()
 
@@ -92,8 +93,13 @@ class User(db.Model):
     profile_pic = db.Column(
         db.Text, nullable=True, default='https://www.kindpng.com/picc/m/451-4517876_default-profile-hd-png-download.png')
 
+    cover_pic = db.Column(
+        db.Text, nullable=True, default='https://facebooktimelinephotos.files.wordpress.com/2012/01/grass-landscape.png')
+
     instrument_id = db.Column(db.Integer, db.ForeignKey(
         'instruments.id'), nullable=True, default=None)
+
+    bio = db.Column(db.Text, nullable=True)
 
     created_at = db.Column(db.DateTime, nullable=False,
                            default=datetime.utcnow())
@@ -109,6 +115,11 @@ class User(db.Model):
 
     friends = db.relationship('User', secondary='friends', primaryjoin=(Friend.user_1 == id),
                               secondaryjoin=(Friend.user_2 == id))
+
+    @property
+    def full_name(self):
+
+        return self.first_name + ' ' + self.last_name
 
     def __repr__(self):
 
@@ -212,12 +223,12 @@ class Playlist(db.Model):
 
     def __repr__(self):
 
-        return f"<Playlist {self.name} created by {self.creator}>"
+        return f"<Playlist {self.name} created by {self.user_id}>"
 
 
 class PlaylistUser(db.Model):
 
-    """Mapping users to playlists (to show which users can access the playlist)"""
+    """Mapping users to playlists (to keep track of each user's created playlists, saved public playlists, and shared private playlists)"""
 
     __tablename__ = 'playlists_users'
 

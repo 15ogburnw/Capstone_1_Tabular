@@ -5,3 +5,32 @@
 
 
 {% block panel_title %} <p class="navbar-brand">Search</p> {% endblock %}
+
+{% block panel_content %}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <form id="search-form">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Search by Artist or Song Title" name="search-input" id="search-input">
+                <div class="input-group-append">
+                    <div class="input-group-text text-light bg-secondary pl-3" id="search-button" style="cursor:pointer;">
+                        <i class="nc-icon nc-zoom-split"></i>
+                    </div>
+                </div>
+            </div>
+        </form>    
+    </div>
+</div>
+
+<div class="row">
+    <ul id="results-list">
+
+    </ul>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="static/js/search.js"></script>
+{% endblock %}
