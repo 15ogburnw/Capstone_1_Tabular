@@ -1,12 +1,13 @@
 
 
 import os
-from models import db, connect_db, User, Instrument, Playlist
+from models import db, connect_db, User, Instrument, Playlist, Song, Like
 from forms import EditUserForm, UserLoginForm, NewUserForm
 from flask import Flask, render_template, redirect, request, flash, session, g, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 import requests
+from json import loads
 
 
 app = Flask(__name__)
@@ -68,20 +69,15 @@ def get_instrument_choices():
     return choices
 
 
-def is_logged_in(func):
+def add_song_if_new(**kwargs):
+    """Add a song to the database"""
 
-    def inner1(*args, **kwargs):
+    if Song.query.filter_by(id=kwargs['id']).first():
+        return None
 
-        if not g.user:
-            flash('Access Unauthorized! Please Login', 'danger')
-
-            return redirect('/')
-
-        func(*args, **kwargs)
-
-    inner1.__name__ = func.__name__
-
-    return inner1
+    song = Song(**kwargs)
+    db.session.add(song)
+    db.session.commit()
 
 
 @app.route('/')
@@ -230,6 +226,33 @@ def edit_my_profile():
     return render_template('users/current/edit_profile.html', user=g.user, form=form)
 
 
+@app.route('/users/likes', methods=['POST'])
+def toggle_like():
+
+    if not g.user:
+        flash('Access Unauthorized! Please Login', 'danger')
+
+        return redirect('/')
+
+    data = loads(request.json['json'])
+
+    add_song_if_new(**data)
+
+    liked_song = Like.query.filter(
+        Like.song_id == data['id'], Like.user_id == g.user.id).first()
+
+    if liked_song:
+        db.session.delete(liked_song)
+        db.session.commit()
+        return 'Song successfully removed from your liked songs!'
+
+    else:
+        new_like = Like(user_id=g.user.id, song_id=data['id'])
+        db.session.add(new_like)
+        db.session.commit()
+        return 'Song successfully added to your liked songs!'
+
+
 @app.route('/users/playlists')
 def my_playlists():
 
@@ -249,17 +272,25 @@ def show_playlist(playlist_id):
 
         return redirect('/')
 
+    if playlist_id == 0:
+        return render_template('playlists/likes.html', user=g.user)
+
     playlist = Playlist.query.get_or_404(playlist_id)
 
     return render_template('playlists/playlist.html', playlist=playlist, user=g.user)
 
 
-@app.route('/api/songs')
-def search_songs():
+@app.route('/playlists/<int:playlist_id>/add', methods=["POST"])
+def add_song_to_playlist(playlist_id):
+    print('come_back')
 
-    query = request.args['query']
 
-    results = requests.get(
-        f'https://www.songsterr.com/a/ra/songs.json?pattern={query}').text
+@app.route('/api/likes')
+def get_liked_songs():
 
-    return jsonify(results)
+    if not g.user:
+        liked_songs = []
+
+    liked_songs = [song.id for song in g.user.likes]
+
+    return jsonify(liked_songs)

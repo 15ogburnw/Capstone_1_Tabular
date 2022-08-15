@@ -185,7 +185,7 @@ class Song(db.Model):
 
     __tablename__ = 'songs'
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True)
 
     title = db.Column(db.Text, nullable=False)
 
