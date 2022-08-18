@@ -15,6 +15,22 @@
     <li><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}">{{playlist.name}}</a></li>
     {% endfor %}
 
+    <form id="new-playlist" action="{{url_for('my_playlists')}}" method="post">
+        <div class="form-group">
+            <label for="playlist-name" class="form-label">Playlist Name</label>
+            <input type="text" name="playlist-name" id="playlist-name" class="form-control" required>
+        </div>
+        
+        <button class = "btn btn-primary" id="create-playlist">Create a New Playlist</button>
+    </form>
+
+        
+        
+    
+
+    
+
 </ul>
 
 {% endblock %}
+

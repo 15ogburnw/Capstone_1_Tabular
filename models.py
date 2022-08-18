@@ -1,6 +1,7 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_bcrypt import Bcrypt
 from datetime import datetime
+import json
 
 
 bcrypt = Bcrypt()
@@ -196,6 +197,16 @@ class Song(db.Model):
     def __repr__(self):
 
         return f"<{self.title} by {self.artist}>"
+
+    def get_song_info(self):
+
+        obj = {
+            "id": self.id,
+            "title": self.title,
+            "artist": self.artist,
+            "tab_url": f'https://www.songsterr.com/a/wa/song?id=${self.id}'}
+
+        return json.dumps(obj)
 
 
 class Playlist(db.Model):

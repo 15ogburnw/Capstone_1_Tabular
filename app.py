@@ -3,7 +3,7 @@
 import os
 from models import db, connect_db, User, Instrument, Playlist, Song, Like
 from forms import EditUserForm, UserLoginForm, NewUserForm
-from flask import Flask, render_template, redirect, request, flash, session, g, jsonify
+from flask import Flask, render_template, redirect, request, flash, session, g, jsonify, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 import requests
@@ -253,13 +253,28 @@ def toggle_like():
         return 'Song successfully added to your liked songs!'
 
 
-@app.route('/users/playlists')
+@app.route('/users/playlists', methods=['GET', 'POST'])
 def my_playlists():
 
     if not g.user:
         flash('Access Unauthorized! Please Login', 'danger')
 
         return redirect('/')
+
+    if request.method == 'POST':
+
+        name = request.form['playlist-name']
+
+        is_duplicate = Playlist.query.filter(
+            Playlist.user_id == g.user.id, Playlist.name == name).one_or_none()
+
+        if is_duplicate:
+            return 'this is a duplicate!'
+        else:
+            new_playlist = Playlist(name=name, user_id=g.user.id)
+            db.session.add(new_playlist)
+            db.session.commit()
+            return redirect(url_for('my_playlists'))
 
     return render_template('playlists/my_playlists.html', user=g.user)
 
@@ -278,6 +293,25 @@ def show_playlist(playlist_id):
     playlist = Playlist.query.get_or_404(playlist_id)
 
     return render_template('playlists/playlist.html', playlist=playlist, user=g.user)
+
+
+@app.route('/playlists/<int:playlist_id>/delete', methods=["POST"])
+def delete_playlist(playlist_id):
+
+    playlist = Playlist.query.get_or_404(playlist_id)
+
+    if not g.user:
+        flash('Access Unauthorized! Please Login', 'danger')
+
+        return redirect('/')
+
+    if g.user.id != playlist.creator.id:
+        flash("You may not delete another user's playlist!")
+        return redirect('/')
+
+    db.session.delete(playlist)
+    db.session.commit()
+    return redirect(url_for('my_playlists'))
 
 
 @app.route('/playlists/<int:playlist_id>/add', methods=["POST"])

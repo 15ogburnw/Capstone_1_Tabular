@@ -6,15 +6,24 @@
 
 {% block panel_content %}
 
-<h1>My Liked Songs</h1>
+<h1 class="title">My Liked Songs</h1>
 
 
-<ul class="songs-list">
+<ul class="liked-songs">
 
     {% for song in user.likes %}
-    <li><a href="{{song.tab_url}}">{{song.title}} by {{song.artist}}</a></li>
+    <li>
+        <a href="{{song.tab_url}}">{{song.title}} by {{song.artist}}</a>
+        <br>
+        <a href="#" class="like" data-song-info="{{song.get_song_info()}}">Unlike</a>
+    </li>
+
     {% endfor %}
 
 </ul>
 
+{% endblock %}
+
+{% block scripts %}
+<script src="../static/js/playlists.js"></script>
 {% endblock %}

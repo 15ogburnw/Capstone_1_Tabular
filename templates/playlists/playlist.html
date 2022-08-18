@@ -6,15 +6,34 @@
 
 {% block panel_content %}
 
-<h1>{{playlist.name}}</h1>
+<h1 class="title">{{playlist.name}}</h1>
 <h3>Created by {{playlist.creator.username}}</h3>
 
 <ul class="songs-list">
 
     {% for song in playlist.songs %}
-    <li><a href="{{song.tab_url}}">{{song.title}} by {{song.artist}}</a></li>
+    <li>
+        <a href="{{song.tab_url}}">{{song.title}} by {{song.artist}}</a>
+        <br>
+        {% if song in user.likes %}
+        <a href="#" class="like" data-is-liked='true' data-song-info = '{{song.get_song_info()}}'>Unlike</a>
+        {% else %}
+        <a href="#" class="like" data-is-liked="false" data-song-info = '{{song.get_song_info()}}'>Like</a>
+        {% endif %}
+    </li>
     {% endfor %}
+
+    {% if playlist.creator.id == user.id %}
+    <form action="{{url_for('delete_playlist',playlist_id=playlist.id)}}" method="post">
+        <button class="btn btn-danger">Delete Playlist</button>
+    </form>
+    
+    {% endif %}
 
 </ul>
 
+{% endblock %}
+
+{% block scripts %}
+<script src="../static/js/playlists.js"></script>
 {% endblock %}

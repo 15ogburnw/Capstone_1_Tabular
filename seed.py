@@ -70,20 +70,20 @@ db.session.commit()
 
 song1 = Song(title="Could You Be Loved", artist="Bob Marley",
              tab_url="https://www.songsterr.com/a/wa/song?id=27215")
-s1id = 1000
+s1id = 27215
 song1.id = s1id
 song2 = Song(title='Concrete Jungle', artist='Bob Marley',
              tab_url='https://www.songsterr.com/a/wa/song?id=12459')
-s2id = 2000
+s2id = 12459
 song2.id = s2id
 
 song3 = Song(title='Whole Lotta Love', artist='Led Zeppelin',
              tab_url='https://www.songsterr.com/a/wa/song?id=449')
-s3id = 3000
+s3id = 449
 song3.id = s3id
 song4 = Song(title='Angie', artist='The Rolling Stones',
              tab_url='https://www.songsterr.com/a/wa/song?id=61')
-s4id = 4000
+s4id = 61
 song4.id = s4id
 
 db.session.add_all([song1, song2, song3, song4])
@@ -91,10 +91,10 @@ db.session.commit()
 
 # Assign songs to playlists
 
-ps1 = PlaylistSong(playlist_id=1000, song_id=1000)
-ps2 = PlaylistSong(playlist_id=1000, song_id=2000)
-ps3 = PlaylistSong(playlist_id=2000, song_id=3000)
-ps4 = PlaylistSong(playlist_id=2000, song_id=4000)
+ps1 = PlaylistSong(playlist_id=1000, song_id=s1id)
+ps2 = PlaylistSong(playlist_id=1000, song_id=s2id)
+ps3 = PlaylistSong(playlist_id=2000, song_id=s3id)
+ps4 = PlaylistSong(playlist_id=2000, song_id=s4id)
 
 db.session.add_all([ps1, ps2, ps3, ps4])
 db.session.commit()
