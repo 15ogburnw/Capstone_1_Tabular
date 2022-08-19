@@ -1,4 +1,4 @@
-{% extends 'home.html' %}
+{% extends 'users/profile.html' %}
 
 
 {% block user_profile %}active{% endblock %}
@@ -6,64 +6,12 @@
 
 {% block panel_title %} <p class="navbar-brand">My Profile</p> {% endblock %}
 
-
-{% block panel_content %}
-
-<div class="row justify-content-center">
-    <div class="col-md-4">
-      <div class="card card-user">
-        <div class="image">
-          <img style="height:100%; width:100%; border-radius: 10px 10px 0px 0px;" src="{{user.cover_pic}}" alt="cover photo">
-        </div>
-        <div class="card-body">
-          <div class="author">
-            <a href="#">
-              <img class="avatar border-gray" src="{{user.profile_pic}}" alt="profile photo">
-              <h5 class="title">{{user.username}}</h5>
-            </a>
-            <p>
-              {{user.full_name}}
-            </p>
-
-            <p>
-              
-              <span class="iconify mr-2" data-icon="{{user.instrument.icon}}" data-width="30" data-height="30"></span>
-              <span>{{user.instrument.name}}</span>
-            </p>
-            {% if user.bio %}
-            <p class="text-center description font-weight-normal">{{user.bio}}</p>
-            {% endif %}
-          </div>
-          
-        </div>
-        <div class="card-footer">
-          <hr>
-          <div class="button-container">
-            <div class="row">
-              <div class="col-lg-3 col-md-6 col-6 ml-auto">
-                <h5>{{user.friends | length}}<br><a href="/"><small>Friends</small></a></h5>
-              </div>
-              <div class="col-lg-4 col-md-6 col-6 ml-auto mr-auto">
-                <h5>{{user.playlists | length}}<br><a href="/"><small>Playlists</small></a></h5>
-              </div>
-              <div class="col-lg-3 mr-auto">
-                <h5>{{user.bands | length}}<br><a href="/"><small>Bands</small></a></h5>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+{% block profile_actions %}
+<div class="row text-center justify-content-center">
+  <div class="col-md-4">
+      <a href="{{url_for('edit_my_profile')}}">
+          <button class="btn btn-lg btn-primary text-center">Edit Profile</button>
+      </a>
   </div>
 </div>
-
-<div class="row text-center justify-content-center">
-    <div class="col-md-4">
-        <a href="{{url_for('edit_my_profile')}}">
-            <button class="btn btn-lg btn-primary text-center">Edit Profile</button>
-        </a>
-    </div>
-</div>
-
-
 {% endblock %}

@@ -162,6 +162,19 @@ class User(db.Model):
 
         return False
 
+    def serialize(self):
+        """return a JSON object with basic user info"""
+
+        obj = {
+            'id': self.id,
+            'username': self.username,
+            'first_name': self.first_name,
+            'last_name': self.first_name,
+            'profile_pic': self.profile_pic
+        }
+
+        return json.dumps(obj)
+
 
 class Instrument(db.Model):
 
@@ -198,7 +211,7 @@ class Song(db.Model):
 
         return f"<{self.title} by {self.artist}>"
 
-    def get_song_info(self):
+    def serialize(self):
 
         obj = {
             "id": self.id,

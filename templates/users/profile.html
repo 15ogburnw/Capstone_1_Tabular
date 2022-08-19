@@ -1,0 +1,63 @@
+{% extends 'home.html' %}
+
+
+
+{% block panel_title %} <p class="navbar-brand">{{user.username}}</p> {% endblock %}
+
+
+{% block panel_content %}
+
+<div class="row justify-content-center">
+    <div class="col-xl-6 col-md-8">
+      <div class="card card-user">
+        <div class="image">
+          <img style="height:100%; width:100%; border-radius: 10px 10px 0px 0px;" src="{{user.cover_pic}}" alt="cover photo">
+        </div>
+        <div class="card-body">
+          <div class="author">
+            <a href="#">
+              <img class="avatar border-gray" src="{{user.profile_pic}}" alt="profile photo">
+              <h5 class="title">{{user.username}}</h5>
+            </a>
+            <p>
+              {{user.full_name}}
+            </p>
+
+            <p>
+              
+              <span class="iconify mr-2" data-icon="{{user.instrument.icon}}" data-width="30" data-height="30"></span>
+              <span>{{user.instrument.name}}</span>
+            </p>
+            {% if user.bio %}
+            <p class="text-center description font-weight-normal">{{user.bio}}</p>
+            {% endif %}
+          </div>
+          
+        </div>
+        <div class="card-footer">
+          <hr>
+          <div class="button-container">
+            <div class="row">
+              <div class="col-md-4 col-8 ml-auto mr-auto">
+                <h5>{{user.friends | length}}<br><a href="/"><small>Friends</small></a></h5>
+              </div>
+              <div class="col-md-4 col-8 ml-auto mr-auto">
+                <h5>{{user.playlists | length}}<br><a href="/"><small>Playlists</small></a></h5>
+              </div>
+              <div class="col-md-4 col-8 mr-auto ml-auto">
+                <h5>{{user.bands | length}}<br><a href="/"><small>Bands</small></a></h5>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% block profile_actions %}
+{% endblock %}
+
+
+{% endblock %}

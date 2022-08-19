@@ -279,6 +279,21 @@ def my_playlists():
     return render_template('playlists/my_playlists.html', user=g.user)
 
 
+# Endpoints for other users' info
+
+@app.route('/users/<int:user_id>/profile')
+def user_profile(user_id):
+
+    if not g.user:
+        flash('Access Unauthorized! Please Login', 'danger')
+
+        return redirect('/')
+
+    user = User.query.get_or_404(user_id)
+
+    return render_template('users/profile.html', user=user)
+
+
 @app.route('/playlists/<int:playlist_id>')
 def show_playlist(playlist_id):
 
@@ -319,8 +334,14 @@ def add_song_to_playlist(playlist_id):
     print('come_back')
 
 
+# *****************
+# API ENDPOINTS
+# ****************
+
+
 @app.route('/api/likes')
 def get_liked_songs():
+    """Returns a list of song ID's for all liked songs in the database"""
 
     if not g.user:
         liked_songs = []
@@ -328,3 +349,26 @@ def get_liked_songs():
     liked_songs = [song.id for song in g.user.likes]
 
     return jsonify(liked_songs)
+
+
+@app.route('/api/users')
+def get_users():
+
+    query = request.args.get('query')
+
+    if query:
+        users = User.query.filter(User.username.ilike(f'%{query}%')).all()
+    else:
+        users = User.query.all()
+
+    if g.user in users:
+        idx = users.index(g.user)
+        users.pop(idx)
+
+    if users:
+        users = [user.serialize() for user in users]
+
+    else:
+        users = []
+
+    return jsonify(users)

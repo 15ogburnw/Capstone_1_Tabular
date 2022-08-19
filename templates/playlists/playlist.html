@@ -16,9 +16,9 @@
         <a href="{{song.tab_url}}">{{song.title}} by {{song.artist}}</a>
         <br>
         {% if song in user.likes %}
-        <a href="#" class="like" data-is-liked='true' data-song-info = '{{song.get_song_info()}}'>Unlike</a>
+        <a href="#" class="like" data-is-liked='true' data-song-info = '{{song.serialize()}}'>Unlike</a>
         {% else %}
-        <a href="#" class="like" data-is-liked="false" data-song-info = '{{song.get_song_info()}}'>Like</a>
+        <a href="#" class="like" data-is-liked="false" data-song-info = '{{song.serialize()}}'>Like</a>
         {% endif %}
     </li>
     {% endfor %}

@@ -8,11 +8,34 @@
 
 {% block panel_content %}
 
-<div class="row justify-content-center">
+<div class="row mb-3">
+    <div class="col-lg-8">
+        <div class="nav-tabs-navigation">
+            
+            <div class="nav-tabs-wrapper">
+                
+                <ul class="nav nav-tabs" data-tabs="tabs">
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="#">Search By:</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link active search" href="#" data-search="songs" data-toggle="tab">Song</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link search" href="#" data-search = 'users' data-toggle="tab">User</a>
+                    </li>
+                </ul>
+            </div>
+        </div>    
+    </div>
+</div>
+
+<div class="row">
     <div class="col-lg-8">
         <form id="search-form">
             <div class="input-group">
-                <input type="text" class="form-control" placeholder="Search by Artist or Song Title" name="search-input" id="search-input">
+                <input type="text" class="form-control" placeholder="Search Songs by Artist or Song Title" name="search-input" id="search-input">
                 <div class="input-group-append">
                     <div class="input-group-text text-light bg-secondary pl-3" id="search-button" style="cursor:pointer;">
                         <i class="nc-icon nc-zoom-split"></i>

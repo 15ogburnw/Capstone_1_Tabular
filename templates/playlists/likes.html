@@ -15,7 +15,7 @@
     <li>
         <a href="{{song.tab_url}}">{{song.title}} by {{song.artist}}</a>
         <br>
-        <a href="#" class="like" data-song-info="{{song.get_song_info()}}">Unlike</a>
+        <a href="#" class="like" data-song-info="{{song.serialize()}}">Unlike</a>
     </li>
 
     {% endfor %}
