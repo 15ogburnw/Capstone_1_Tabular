@@ -1,6 +1,5 @@
-// const BASE_URL = "http://localhost:5000/";
-
 $(document).ready(function () {
+  const BASE_URL = "http://localhost:5000";
   const $searchForm = $("#search-form");
   const $searchBtn = $("#search-button");
   const $searchInput = $("#search-input");
@@ -176,7 +175,6 @@ $(document).ready(function () {
     //Get the HTML for each user and append it to the results section
     for (let user of users) {
       user = JSON.parse(user);
-      console.log(user);
       html = getUserHTML(user);
       $resultsList.append(html);
     }

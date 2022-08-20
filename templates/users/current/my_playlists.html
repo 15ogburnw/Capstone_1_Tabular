@@ -8,12 +8,14 @@
 
 {% block panel_content %}
 
+<h3><a href="{{url_for('show_playlist', playlist_id=0)}}">Liked Songs</a></h3>
+<h3>Playlists</h3>
+
 <ul class="playlists-list">
 
-    <li><a href="{{url_for('show_playlist', playlist_id=0)}}">Liked Songs</a></li>
-    <h5>Playlists</h5>
+    
     {% for playlist in user.playlists %}
-    <li><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}">{{playlist.name}}</a></li>
+    <li><h5><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}">{{playlist.name}}</a></h5></li>
     {% endfor %}
 
 </ul>

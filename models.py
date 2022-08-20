@@ -242,7 +242,8 @@ class Playlist(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False,
                            default=datetime.utcnow())
 
-    songs = db.relationship('Song', secondary='playlists_songs')
+    songs = db.relationship(
+        'Song', secondary='playlists_songs', backref='playlists')
 
     creator = db.relationship('User')
 
@@ -264,6 +265,11 @@ class Playlist(db.Model):
 
         playlist_song = PlaylistSong(playlist_id=self.id, song_id=song_id)
         db.session.add(playlist_song)
+
+    def remove_song(self, song_id):
+        playlist_song = PlaylistSong.query.filter(
+            PlaylistSong.playlist_id == self.id, PlaylistSong.song_id == song_id).one_or_none()
+        db.session.delete(playlist_song)
 
     def add_user(self, user_id):
 

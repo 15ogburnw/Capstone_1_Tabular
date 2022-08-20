@@ -1,6 +1,6 @@
 {% extends 'home.html' %}
 
-{% from 'base.html' import add_to_playlist, song_modal%}
+{% from 'base.html' import add_remove, song_modal%}
 
 
 {% block panel_title %} <p class="navbar-brand">Playlists</p> {% endblock %}
@@ -8,37 +8,62 @@
 {% block panel_content %}
 
 <h1 class="title">{{playlist.name}}</h1>
-<h3>Created by {{playlist.creator.username}}</h3>
+<h3><small>Created by {{playlist.creator.username}}</small></h3>
 
-<ul class="songs-list">
+{% if playlist.songs | length < 1 %}
+<h5>There are no songs in this playlist! </h5>
+{% endif %}
+
+<ul id="songs-list">
+
 
     {% for song in playlist.songs %}
     <li>
         <a href="{{song.tab_url}}">{{song.title}} by {{song.artist}}</a>
+
+        <div class="btn-group dropright">
+            <a class="ml-3" type="button"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </a>
+            <div class="dropdown-menu">
+                {% if song in user.likes %}
+                <a href="#" class="like dropdown-item" data-is-liked='true' data-song-info = '{{song.serialize()}}'>Unlike</a>
+                {% else %}
+                <a href="#" class="like dropdown-item" data-is-liked="false" data-song-info = '{{song.serialize()}}'>Like</a>
+                {% endif %}
+                {{add_remove(song,user,playlist)}}
+            </div>
+        </div>
+
         <br>
-        {% if song in user.likes %}
-        <a href="#" class="like" data-is-liked='true' data-song-info = '{{song.serialize()}}'>Unlike</a>
-        {% else %}
-        <a href="#" class="like" data-is-liked="false" data-song-info = '{{song.serialize()}}'>Like</a>
-        {% endif %}
-        {{add_to_playlist(song)}}
+
+        
     </li>
     {% endfor %}
 
-    {% if playlist.creator.id == user.id %}
-    <form action="{{url_for('delete_playlist',playlist_id=playlist.id)}}" method="post">
-        <button class="btn btn-danger">Delete Playlist</button>
-    </form>
-    
-    {% endif %}
-
 </ul>
+
+{% if playlist.creator.id == user.id %}
+<form action="{{url_for('delete_playlist',playlist_id=playlist.id)}}" class="form-inline" method="post">
+    <div class="dropdown mr-2">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="addSongs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Add Songs
+        </button>
+        <div class="dropdown-menu" aria-labelledby="addSongs">
+          <a class="dropdown-item" href="{{url_for('search_page')}}">Search for Songs</a>
+          <a class="dropdown-item" href="{{url_for('show_playlist',playlist_id=0)}}">Add From Liked Songs</a>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-danger">Delete Playlist</button>
+</form>
+
+{% endif %}
 
 {{song_modal(playlists=user.playlists)}}
 
 {% endblock %}
 
 {% block scripts %}
-<script src="../static/js/playlists.js"></script>
 <script src="../static/js/songs.js"></script>
+<script src="../static/js/playlists.js"></script>
 {% endblock %}

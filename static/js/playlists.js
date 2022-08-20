@@ -1,6 +1,6 @@
 $(document).ready(function () {
-  const $songsList = $(".songs-list");
-  const $likedSongs = $(".liked-songs");
+  const $songsList = $("#songs-list");
+  const $likedSongs = $("#liked-songs");
 
   if ($likedSongs.length > 0) {
     $likedSongs.on("click", ".like", removeLike);
@@ -12,6 +12,7 @@ $(document).ready(function () {
 
   async function toggleLike(e) {
     e.preventDefault();
+    console.log("clicked");
     const songInfo = $(this).attr("data-song-info");
     const isLiked = $(this).attr("data-is-liked");
 
@@ -35,6 +36,6 @@ $(document).ready(function () {
     const resp = await axios.post("http://localhost:5000/users/likes", {
       json: songInfo,
     });
-    $(this).parent().remove();
+    $(this).closest("li").remove();
   }
 });

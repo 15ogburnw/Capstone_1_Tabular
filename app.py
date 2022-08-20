@@ -390,6 +390,28 @@ def add_song_to_playlist():
     return redirect(request.referrer)
 
 
+@app.route('/playlists/<int:playlist_id>/remove-song', methods=["POST"])
+def remove_song_from_playlist(playlist_id):
+
+    if not g.user:
+        flash('Access Unauthorized! Please Login', 'danger')
+
+        return redirect('/')
+
+    songInfo = loads(request.json['json'])
+    print(songInfo)
+
+    playlist = Playlist.query.get_or_404(playlist_id)
+
+    if playlist.user_id != g.user.id:
+        flash("You may not remove a song from another user's playlist")
+        return redirect('/')
+
+    playlist.remove_song(songInfo['id'])
+    db.session.commit()
+
+    return redirect(request.referrer)
+
 # *****************
 # API ENDPOINTS
 # ****************
@@ -420,7 +442,7 @@ def get_users():
         users = User.query.all()
 
     # Remove currently logged in user from the list of users
-    if g.user in users:
+    if g.user and g.user in users:
         idx = users.index(g.user)
         users.pop(idx)
 
@@ -431,3 +453,22 @@ def get_users():
         users = []
 
     return jsonify(users)
+
+
+@app.route('/api/songs/<int:song_id>/playlists')
+def get_playlists_for_song(song_id):
+    """
+    Returns a list of id's for all current user's playlists that a song is present in 
+    """
+    if not g.user:
+        playlistIds = []
+
+    song = Song.query.filter(Song.id == song_id).one_or_none()
+
+    if song:
+        playlistIds = [playlist.id
+                       for playlist in song.playlists if playlist.creator.id == g.user.id]
+    else:
+        playlistIds = []
+
+    return jsonify(playlistIds)

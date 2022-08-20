@@ -1,5 +1,7 @@
 {% extends 'home.html' %}
 
+{% from 'base.html' import add_remove, song_modal%}
+
 
 
 {% block panel_title %} <p class="navbar-brand">Playlists</p> {% endblock %}
@@ -8,22 +10,39 @@
 
 <h1 class="title">My Liked Songs</h1>
 
+{% if user.likes | length < 1 %}
+<h5>You have no liked songs!
+    <a href="#">Add Songs</a>
+</h5>
+{% endif %}
 
-<ul class="liked-songs">
+<ul id="liked-songs">
+
+
 
     {% for song in user.likes %}
     <li>
         <a href="{{song.tab_url}}">{{song.title}} by {{song.artist}}</a>
-        <br>
-        <a href="#" class="like" data-song-info="{{song.serialize()}}">Unlike</a>
+        <div class="btn-group dropright">
+            <a class="ml-3" type="button"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa-solid fa-bars"></i>
+            </a>
+            <div class="dropdown-menu">
+                <a href="#" class="like dropdown-item" data-is-liked='true' data-song-info = '{{song.serialize()}}'>Unlike</a>
+                {{add_remove(song,user,playlist)}}
+            </div>
+        </div>
     </li>
 
     {% endfor %}
 
 </ul>
 
+{{song_modal(playlists=user.playlists)}}
+
 {% endblock %}
 
 {% block scripts %}
+<script src="../static/js/songs.js"></script>
 <script src="../static/js/playlists.js"></script>
 {% endblock %}
