@@ -31,7 +31,7 @@
           
           
           <li class="{% block playlists %}{% endblock %}">
-            <a href="{{url_for('my_playlists')}}">
+            <a href="{{url_for('user_playlists',user_id=0)}}">
               <i class="nc-icon nc-button-play"></i>
               <p>Playlists</p>
             </a>
@@ -63,7 +63,7 @@
           
           
           <li class="{% block user_profile %}{% endblock %}">
-            <a href="{{url_for('my_profile')}}">
+            <a href="{{url_for('user_profile', user_id=0)}}">
               <i class="nc-icon nc-circle-10"></i>
               <p>User Profile</p>
             </a>
@@ -84,7 +84,7 @@
 
           </div>
           <div class="collapse navbar-collapse justify-content-end">
-            <a class="navbar-link mr-4" href="{{url_for('my_profile')}}">{{user.username}}</a>
+            <a class="navbar-link mr-4" href="{{url_for('user_profile', user_id=0)}}">{{user.username}}</a>
             <a class="navbar-link" href="/logout">Logout</a>
           </div>
           

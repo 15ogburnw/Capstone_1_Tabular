@@ -79,7 +79,8 @@ class User(db.Model):
 
     __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, db.CheckConstraint('id>0'),
+                   primary_key=True, autoincrement=True)
 
     username = db.Column(db.String(30), nullable=False, unique=True)
 
@@ -109,9 +110,7 @@ class User(db.Model):
 
     likes = db.relationship('Song', secondary='likes')
 
-    my_playlists = db.relationship('Playlist', backref='creator')
-
-    all_playlists = db.relationship(
+    playlists = db.relationship(
         'Playlist', secondary='playlists_users', backref='users')
 
     friends = db.relationship('User', secondary='friends', primaryjoin=(Friend.user_1 == id),
@@ -244,6 +243,8 @@ class Playlist(db.Model):
                            default=datetime.utcnow())
 
     songs = db.relationship('Song', secondary='playlists_songs')
+
+    creator = db.relationship('User')
 
     def __repr__(self):
 

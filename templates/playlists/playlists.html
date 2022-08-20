@@ -1,0 +1,18 @@
+{% extends 'home.html' %}
+
+
+
+{% block panel_title %} <p class="navbar-brand">{{user.username}}'s Playlists</p> {% endblock %}
+
+{% block panel_content %}
+
+<ul class="playlists-list">
+
+    {% for playlist in user.playlists %}
+    <li><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}">{{playlist.name}}</a></li>
+    {% endfor %}
+
+</ul>
+
+
+{% endblock %}

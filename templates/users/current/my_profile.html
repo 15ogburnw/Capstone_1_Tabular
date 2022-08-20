@@ -6,6 +6,8 @@
 
 {% block panel_title %} <p class="navbar-brand">My Profile</p> {% endblock %}
 
+{% block user_playlists %}{{url_for('user_playlists', user_id=0)}}{% endblock %}
+
 {% block profile_actions %}
 <div class="row text-center justify-content-center">
   <div class="col-md-4">

@@ -39,13 +39,13 @@
           <div class="button-container">
             <div class="row">
               <div class="col-md-4 col-8 ml-auto mr-auto">
-                <h5>{{user.friends | length}}<br><a href="/"><small>Friends</small></a></h5>
+                <h5>{{user.friends | length}}<br><a href="{% block user_friends %}{% endblock %}"><small>Friends</small></a></h5>
               </div>
               <div class="col-md-4 col-8 ml-auto mr-auto">
-                <h5>{{user.playlists | length}}<br><a href="/"><small>Playlists</small></a></h5>
+                <h5>{{user.playlists | length}}<br><a href="{% block user_playlists %}{{url_for('user_playlists', user_id=user.id)}}{% endblock %}"><small>Playlists</small></a></h5>
               </div>
               <div class="col-md-4 col-8 mr-auto ml-auto">
-                <h5>{{user.bands | length}}<br><a href="/"><small>Bands</small></a></h5>
+                <h5>{{user.bands | length}}<br><a href="{% block user_bands %}{% endblock %}"><small>Bands</small></a></h5>
               </div>
             </div>
           </div>
