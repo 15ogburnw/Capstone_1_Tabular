@@ -1,5 +1,6 @@
 {% extends 'home.html' %}
 
+{% from 'base.html' import add_to_playlist, song_modal%}
 
 
 {% block panel_title %} <p class="navbar-brand">Playlists</p> {% endblock %}
@@ -20,6 +21,7 @@
         {% else %}
         <a href="#" class="like" data-is-liked="false" data-song-info = '{{song.serialize()}}'>Like</a>
         {% endif %}
+        {{add_to_playlist(song)}}
     </li>
     {% endfor %}
 
@@ -32,8 +34,11 @@
 
 </ul>
 
+{{song_modal(playlists=user.playlists)}}
+
 {% endblock %}
 
 {% block scripts %}
 <script src="../static/js/playlists.js"></script>
+<script src="../static/js/songs.js"></script>
 {% endblock %}

@@ -9,7 +9,10 @@
 <ul class="playlists-list">
 
     {% for playlist in user.playlists %}
-    <li><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}">{{playlist.name}}</a></li>
+    <li>
+        <a href="{{url_for('show_playlist', playlist_id=playlist.id)}}">{{playlist.name}}</a><br>
+        
+    </li>
     {% endfor %}
 
 </ul>

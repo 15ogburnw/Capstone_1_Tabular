@@ -1,5 +1,6 @@
 
 
+from hashlib import new
 import os
 from models import db, connect_db, User, Instrument, Playlist, Song, Like, PlaylistUser
 from forms import EditUserForm, UserLoginForm, NewUserForm
@@ -360,9 +361,33 @@ def delete_playlist(playlist_id):
     return redirect(url_for('user_playlists', user_id=0))
 
 
-@app.route('/playlists/<int:playlist_id>/add-song', methods=["POST"])
-def add_song_to_playlist(playlist_id):
-    print('come_back')
+@app.route('/playlists/add-song', methods=["POST"])
+def add_song_to_playlist():
+
+    if not g.user:
+        flash('Access Unauthorized! Please Login', 'danger')
+
+        return redirect('/')
+
+    data = loads(request.json['json'])
+    songInfo = data['songInfo']
+    add_song_if_new(**songInfo)
+
+    playlists = [playlist['id'] for playlist in data['playlists']]
+    playlists = Playlist.query.filter(Playlist.id.in_(playlists)).all()
+    print(playlists)
+
+    for playlist in playlists:
+
+        if playlist.user_id != g.user.id:
+            flash("You may not add a song to another user's playlist")
+            return redirect('/')
+
+        playlist.add_song(songInfo['id'])
+
+    db.session.commit()
+
+    return redirect(request.referrer)
 
 
 # *****************

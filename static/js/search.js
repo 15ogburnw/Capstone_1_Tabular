@@ -1,3 +1,5 @@
+// const BASE_URL = "http://localhost:5000/";
+
 $(document).ready(function () {
   const $searchForm = $("#search-form");
   const $searchBtn = $("#search-button");
@@ -88,6 +90,7 @@ $(document).ready(function () {
   function getSongHTML(song, isLiked) {
     const $newLI = $("<li>");
     const $tabLink = $("<a>");
+    const $addToPlaylist = getModalBtn(song);
 
     // object with song info to store in HTML
     const songInfo = {
@@ -108,22 +111,23 @@ $(document).ready(function () {
         .attr("data-song-info", JSON.stringify(songInfo))
         .attr("data-is-liked", false)
         .addClass("like");
-      const html = $newLI.append("<br>").append($like);
-      return html;
+      $newLI.append("<br>").append($like);
     } else {
       const $unlike = $("<a href='#'>").append("Unlike");
       $unlike
         .attr("data-song-info", JSON.stringify(songInfo))
         .attr("data-is-liked", true)
         .addClass("like");
-      const html = $newLI.append("<br>").append($unlike);
-      return html;
+      $newLI.append("<br>").append($unlike);
     }
+
+    const html = $newLI.append($addToPlaylist);
+    return html;
   }
 
   // Get all liked songs from the database
   async function getLikedSongs() {
-    resp = await axios.get("/api/likes");
+    resp = await axios.get(`${BASE_URL}/api/likes`);
     return resp.data;
   }
 
@@ -138,12 +142,12 @@ $(document).ready(function () {
     const isLiked = $(this).attr("data-is-liked");
 
     if (isLiked === "false") {
-      const resp = await axios.post("http://localhost:5000/users/likes", {
+      const resp = await axios.post(`${BASE_URL}/users/likes`, {
         json: songInfo,
       });
       $(this).empty().append("Unlike").attr("data-is-liked", true);
     } else {
-      const resp = await axios.post("http://localhost:5000/users/likes", {
+      const resp = await axios.post(`${BASE_URL}/users/likes`, {
         json: songInfo,
       });
       $(this).empty().append("Like").attr("data-is-liked", false);
@@ -152,7 +156,7 @@ $(document).ready(function () {
 
   //Get a list of users from the database using a search query
   async function queryUsers(query) {
-    const resp = await axios.get("http://localhost:5000/api/users", {
+    const resp = await axios.get(`${BASE_URL}/api/users`, {
       params: { query: query },
     });
 

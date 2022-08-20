@@ -1,4 +1,5 @@
 {% extends 'home.html' %}
+{% from 'base.html' import song_modal%}
 
 
 {% block search %}active{% endblock %}
@@ -52,8 +53,14 @@
     </ul>
 </div>
 
+{{song_modal(playlists=user.playlists)}}
+
 {% endblock %}
 
+
+
 {% block scripts %}
+<script src="static/js/songs.js"></script>
 <script src="static/js/search.js"></script>
+
 {% endblock %}

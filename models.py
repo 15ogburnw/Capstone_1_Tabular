@@ -250,6 +250,26 @@ class Playlist(db.Model):
 
         return f"<Playlist {self.name} created by {self.user_id}>"
 
+    def serialize(self):
+
+        obj = {
+            "id": self.id,
+            'user_id': self.user_id,
+            "name": self.name,
+        }
+
+        return json.dumps(obj)
+
+    def add_song(self, song_id):
+
+        playlist_song = PlaylistSong(playlist_id=self.id, song_id=song_id)
+        db.session.add(playlist_song)
+
+    def add_user(self, user_id):
+
+        playlist_user = PlaylistUser(playlist_id=self.id, user_id=user_id)
+        db.session.add(playlist_user)
+
 
 class PlaylistUser(db.Model):
 
