@@ -7,16 +7,17 @@
 
 {% block panel_content %}
 
-<h1 class="title">{{playlist.name}}</h1>
+<span class="h3">{{playlist.name}}</span>
 {% if playlist.creator.id != user.id %}
     {% if playlist not in user.playlists %}
-    <i class="fa-light fa-heart" style="color:red"></i>
+    <a href="#" class="h3 ml-3"><i class="fa-regular fa-heart" id="playlist-unliked" data-playlist-id="{{playlist.id}}" style="color:red;cursor:pointer;"></i></a>
     {% else %}
-    <i class="fa-solid fa-heart" style="color:red"></i>
+    <a href="#" class="h3 ml-3"><i class="fa-solid fa-heart" id="playlist-liked" data-playlist-id="{{playlist.id}}" style="color:red;cursor:pointer;"></i></a>
     {% endif %}
 {% endif %}
 
-<h3><small>Created by {{playlist.creator.username}}</small></h3>
+<p><em>Created by @<a href="{{url_for('user_profile',user_id=playlist.creator.id)}}" style="color:black">{{playlist.creator.username}}</a></em></p>
+<hr>
 
 {% if playlist.songs | length < 1 %}
 <h5>There are no songs in this playlist! </h5>

@@ -17,8 +17,20 @@
 
 {% block panel_content %}
 
-<!-- <h5>@{{user.username}}'s Friends</h5>
-<hr> -->
+{% if user.friends | length < 1 %}
+
+    {% if user.id == curr_user.id %}
+    <h5>You have no friends!
+        <a href="{{url_for('search_page')}}">Search for other Users</a>
+    </h5>
+    {% else %}
+    <h5>@{{user.username}} does not have any friends!</h5>
+    <!-- Add later(?): "Send them a friend request" button -->
+    {% endif %}
+
+{% endif %}
+
+
 {% for friend in user.friends %}
 {{render_friend(friend)}}
 {% endfor %}

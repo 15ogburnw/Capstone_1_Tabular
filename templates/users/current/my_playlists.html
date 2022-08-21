@@ -8,17 +8,37 @@
 
 {% block panel_content %}
 
-<h3><a href="{{url_for('show_playlist', playlist_id=0)}}">Liked Songs</a></h3>
-<h3>Playlists</h3>
 
-<ul class="playlists-list">
+<h3 class="mb-0">Liked Playlists</h3>
+<hr>
+<ul class="my-playlists-list mb-5 mt-3">
 
-    
-    {% for playlist in user.playlists %}
-    <li><h5><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}">{{playlist.name}}</a></h5></li>
+    {% for playlist in user.playlists | sort(attribute='user_id') %}
+        {% if playlist.creator.id != user.id %}
+        <li>
+            <h5 class="mb-0"><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}">{{playlist.name}}</a></h5>
+            <em>Created by @<a href="{{url_for('user_profile',user_id=playlist.creator.id)}}" style="color:black">{{playlist.creator.username}}</a></em>
+        </li>
+        {% endif %}
     {% endfor %}
 
 </ul>
+
+
+<h3 class="mb-0">My Playlists</h3>
+<hr>
+<ul class="my-playlists-list mb-5 mt-3">
+
+    <li><h5><a href="{{url_for('show_playlist', playlist_id=0)}}">Liked Songs</a></h5></li>
+
+    {% for playlist in user.playlists %}
+        {% if playlist.creator.id == user.id %}
+        <li><h5><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}">{{playlist.name}}</a></h5></li>
+        {% endif %}
+    {% endfor %}
+
+</ul>
+<hr>
 
 <form id="new-playlist" action="{{url_for('user_playlists', user_id=user.id)}}" method="post">
     <div class="form-group">
@@ -28,6 +48,9 @@
     
     <button class = "btn btn-primary" id="create-playlist">Create a New Playlist</button>
 </form>
+
+
+
 
 {% endblock %}
 

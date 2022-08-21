@@ -85,6 +85,10 @@
 
           </div>
           <div class="collapse navbar-collapse justify-content-end">
+            <a class="mr-4" href="{{url_for('user_profile', user_id=curr_user.id)}}">
+              <!-- <p class="text-hide" style="background-image:url({{curr_user.profile_pic}}); width: 50px; height: 50px; border-radius: 25px;">Profile Pic</p> -->
+            </a>
+            
             <a class="navbar-link mr-4" href="{{url_for('user_profile', user_id=curr_user.id)}}">@{{curr_user.username}}</a>
             <a class="navbar-link" href="/logout">Logout</a>
           </div>

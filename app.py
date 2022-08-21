@@ -315,7 +315,7 @@ def user_playlists(user_id):
                 db.session.add(playlist_user)
                 db.session.commit()
 
-                return redirect(url_for('user_playlists', user_id=0))
+                return redirect(url_for('user_playlists', user_id=g.user.id))
 
     if user_id == g.user.id:
         # If user id is 0, direct to logged in user's playlists
@@ -471,7 +471,7 @@ def delete_playlist(playlist_id):
     # Delete the playlist from the database and redirect to current user's playlists page
     db.session.delete(playlist)
     db.session.commit()
-    return redirect(url_for('user_playlists', user_id=0))
+    return redirect(url_for('user_playlists', user_id=g.user.id))
 
 
 @ app.route('/playlists/add-song', methods=["POST"])
@@ -534,6 +534,54 @@ def remove_song_from_playlist(playlist_id):
 
     # remove the song from the playlist
     playlist.remove_song(songInfo['id'])
+    db.session.commit()
+
+    return redirect(request.referrer)
+
+
+@app.route('/playlists/<int:playlist_id>/like', methods=["POST"])
+def like_playlist(playlist_id):
+
+    # Check that a user is logged in, if not redirect
+    if not g.user:
+        flash('Access Unauthorized! Please Login', 'danger')
+
+        return redirect('/')
+
+    # Get playlist from database
+    playlist = Playlist.query.get_or_404(playlist_id)
+
+    # Check if playlist is already in user's playlists, if it is redirect
+    if playlist in g.user.playlists:
+        flash('You already like this playlist!')
+        return redirect(request.referrer)
+
+    # Add playlist to user's playlists and redirect
+    g.user.playlists.append(playlist)
+    db.session.commit()
+
+    return redirect(request.referrer)
+
+
+@app.route('/playlists/<int:playlist_id>/unlike', methods=["POST"])
+def unlike_playlist(playlist_id):
+
+    # Check that a user is logged in, if not redirect
+    if not g.user:
+        flash('Access Unauthorized! Please Login', 'danger')
+
+        return redirect('/')
+
+    # Get playlist from database
+    playlist = Playlist.query.get_or_404(playlist_id)
+
+    # Check that playlist is present in user's playlists, if not redirect
+    if playlist not in g.user.playlists:
+        flash('This playlist is not in your liked playlists!')
+        return redirect(request.referrer)
+
+    # Remmove playlist from user's playlists and redirect
+    g.user.playlists.remove(playlist)
     db.session.commit()
 
     return redirect(request.referrer)
