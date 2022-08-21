@@ -12,7 +12,7 @@ $(document).ready(function () {
 
   async function toggleLike(e) {
     e.preventDefault();
-    console.log("clicked");
+
     const songInfo = $(this).attr("data-song-info");
     const isLiked = $(this).attr("data-is-liked");
 

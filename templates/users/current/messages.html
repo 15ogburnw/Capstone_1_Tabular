@@ -1,7 +1,42 @@
 {% extends 'home.html' %}
 
+{% from 'base.html' import render_message %}
+
 
 {% block messages %}active{% endblock %}
 
 
 {% block panel_title %} <p class="navbar-brand">Messages</p> {% endblock %}
+
+
+{% block panel_content %}
+
+<h6>Notifications</h6>
+<hr>
+<div id="notifications">
+    {% for msg in messages %}
+
+    {% if msg.category == 'fr' %}
+    {{render_message(msg)}}
+    {% endif %}
+
+    {% endfor %}
+</div>
+
+
+<h6>Messages</h6>
+<hr>
+{% for msg in messages %}
+
+{% if msg.category == 'dm' %}
+{{render_message(msg)}}
+{% endif %}
+
+{% endfor %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="../../../static/js/friends.js"></script>
+
+{% endblock %}

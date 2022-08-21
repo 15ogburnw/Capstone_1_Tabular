@@ -39,7 +39,7 @@
           
           
           <li class="{% block friends %}{% endblock %}">
-            <a href="">
+            <a href="{{url_for('show_friends', user_id=0)}}">
               <i class="nc-icon nc-satisfied"></i>
               <p>Friends</p>
             </a>
@@ -54,7 +54,7 @@
           </li>
 
           <li class="{% block messages %}{% endblock %}">
-            <a href="">
+            <a href="{{url_for('show_messages')}}">
               <i class="nc-icon nc-chat-33"></i>
               <p>Messages</p>
             </a>
@@ -84,7 +84,7 @@
 
           </div>
           <div class="collapse navbar-collapse justify-content-end">
-            <a class="navbar-link mr-4" href="{{url_for('user_profile', user_id=0)}}">{{user.username}}</a>
+            <a class="navbar-link mr-4" href="{{url_for('user_profile', user_id=0)}}">My Profile</a>
             <a class="navbar-link" href="/logout">Logout</a>
           </div>
           

@@ -2,7 +2,7 @@
 
 from hashlib import new
 import os
-from models import db, connect_db, User, Instrument, Playlist, Song, Like, PlaylistUser
+from models import db, connect_db, User, Instrument, Playlist, Song, Like, PlaylistUser, Message, Friend
 from forms import EditUserForm, UserLoginForm, NewUserForm
 from flask import Flask, render_template, redirect, request, flash, session, g, jsonify, url_for
 from flask_debugtoolbar import DebugToolbarExtension
@@ -186,33 +186,39 @@ def search_page():
 def user_profile(user_id):
     """Display user profile page given a user ID"""
 
+    # Check that a user is logged in, if not redirect
     if not g.user:
         flash('Access Unauthorized! Please Login', 'danger')
 
         return redirect('/')
 
-    # If the user ID is 0, display the user page for currently logged in user
+    # If the user ID is 0, display the user page for currently logged in user. Else, show
+    # page of user matching user ID
     if user_id == 0:
         return render_template('users/current/my_profile.html', user=g.user)
 
     user = User.query.get(user_id)
 
-    return render_template('users/profile.html', user=user)
+    my_friends = User.get_friends(g.user.id)
+
+    return render_template('users/profile.html', user=user, my_friends=my_friends)
 
 
 @app.route('/users/profile/edit', methods=['GET', 'POST'])
 def edit_my_profile():
     """Display page to edit current user's profile information"""
 
+    # Check that a user is logged in, if not redirect
     if not g.user:
         flash('Access Unauthorized! Please Login', 'danger')
 
         return redirect('/')
 
+    # Load edit form and populate instrument dropdown with choices from instruments in database
     form = EditUserForm(obj=g.user)
-
     form.instrument_id.choices = get_instrument_choices()
 
+    # If form is validated, update user in database
     if form.validate_on_submit():
 
         try:
@@ -223,6 +229,7 @@ def edit_my_profile():
                 else:
                     setattr(g.user, key, value)
 
+        # error handling for duplicate username
         except IntegrityError:
             form.username.errors.append('Username already taken!')
             return render_template('users/current/edit_profile.html', user=g.user, form=form)
@@ -232,6 +239,7 @@ def edit_my_profile():
 
         return redirect(request.referrer)
 
+    # If get request, render the form
     return render_template('users/current/edit_profile.html', user=g.user, form=form)
 
 
@@ -239,7 +247,7 @@ def edit_my_profile():
 def toggle_like():
     """Add or remove a song from a user's liked songs"""
 
-    # Check that a user is logged in
+    # Check that a user is logged in, if not redirect
     if not g.user:
         flash('Access Unauthorized! Please Login', 'danger')
 
@@ -317,20 +325,113 @@ def user_playlists(user_id):
 
     return render_template('playlists/playlists.html', user=user)
 
-# *************
-# Routes for playlists
-# *************
+
+@app.route('/users/request-friend/<int:user_id>', methods=["POST"])
+def send_friend_request(user_id):
+    """Send a friend request to a user, given a user ID"""
+
+    # Check that a user is logged in
+    if not g.user:
+        flash('Access Unauthorized! Please Login', 'danger')
+
+        return redirect('/')
+
+    if g.user.check_if_friends(user_id):
+
+        flash('You are already friends!')
+        return redirect(request.referrer)
+
+    # Create a friend request message to user matching user ID
+    g.user.send_friend_request(user_id)
+    db.session.commit()
+
+    return redirect(request.referrer)
 
 
-@app.route('/playlists/<int:playlist_id>')
-def show_playlist(playlist_id):
-    """Display page for a playlist, given a playlist id"""
+@app.route('/users/accept-request/<user_id>', methods=["POST"])
+def accept_friend_request(user_id):
+
+    # Check that a user is logged in
+    if not g.user:
+        flash('Access Unauthorized! Please Login', 'danger')
+
+        return redirect('/')
+
+    if g.user.check_if_friends(user_id):
+
+        flash('You are already friends!')
+        return redirect(request.referrer)
+
+    g.user.accept_friend_request(user_id)
+    db.session.commit()
+
+    return redirect(request.referrer)
+
+
+@app.route('/users/deny-request/<user_id>', methods=["POST"])
+def deny_friend_request(user_id):
+
+    # Check that a user is logged in
+    if not g.user:
+        flash('Access Unauthorized! Please Login', 'danger')
+
+        return redirect('/')
+
+    if g.user.deny_friend_request(user_id):
+        db.session.commit()
+
+    return redirect(request.referrer)
+
+
+@app.route('/users/<int:user_id>/friends')
+def show_friends(user_id):
+
+    # Check that a user is logged in
+    if not g.user:
+        flash('Access Unauthorized! Please Login', 'danger')
+
+        return redirect('/')
+
+    if user_id == 0:
+
+        return render_template('users/current/my_friends.html', user=g.user)
+
+
+@app.route('/users/remove-friend/<user_id>', methods=["POST"])
+def remove_friend(user_id):
 
     if not g.user:
         flash('Access Unauthorized! Please Login', 'danger')
 
         return redirect('/')
 
+    if not g.user.check_if_friends(user_id):
+
+        flash('You are not friends!')
+        return redirect(request.referrer)
+
+    g.user.remove_friend(user_id)
+    db.session.commit()
+
+    return redirect(url_for('show_friends', user_id=0))
+
+
+# *************
+# Routes for playlists
+# *************
+
+
+@ app.route('/playlists/<int:playlist_id>')
+def show_playlist(playlist_id):
+    """Display page for a playlist, given a playlist id"""
+
+    # Check that a user is logged in
+    if not g.user:
+        flash('Access Unauthorized! Please Login', 'danger')
+
+        return redirect('/')
+
+    # If playlist_id is zero, direct to current user's liked songs page
     if playlist_id == 0:
         return render_template('playlists/likes.html', user=g.user)
 
@@ -339,44 +440,55 @@ def show_playlist(playlist_id):
     return render_template('playlists/playlist.html', playlist=playlist, user=g.user)
 
 
-@app.route('/playlists/<int:playlist_id>/delete', methods=["POST"])
+@ app.route('/playlists/<int:playlist_id>/delete', methods=["POST"])
 def delete_playlist(playlist_id):
-    """Delete a playlist from the database if the currently logged in user is the creator 
+    """Delete a playlist from the database if the currently logged in user is the creator
     of the playlist
     """
 
     playlist = Playlist.query.get_or_404(playlist_id)
 
+    # Check that a user is logged in, if not redirect
     if not g.user:
         flash('Access Unauthorized! Please Login', 'danger')
 
         return redirect('/')
 
+    # Check that the playlist creator is the same as the logged in user, if not redirect
     if g.user.id != playlist.creator.id:
         flash("You may not delete another user's playlist!")
         return redirect('/')
 
+    # Delete the playlist from the database and redirect to current user's playlists page
     db.session.delete(playlist)
     db.session.commit()
     return redirect(url_for('user_playlists', user_id=0))
 
 
-@app.route('/playlists/add-song', methods=["POST"])
+@ app.route('/playlists/add-song', methods=["POST"])
 def add_song_to_playlist():
+    """Add a song to a playlist"""
 
+    # Check that a user is logged in, if not redirect
     if not g.user:
         flash('Access Unauthorized! Please Login', 'danger')
 
         return redirect('/')
 
+    # Get the data from the post request JSON object
     data = loads(request.json['json'])
+
+    # Get song info and add to the database if the song is not already saved
     songInfo = data['songInfo']
     add_song_if_new(**songInfo)
 
+    # Create an array of database ID's from the playlists passed in the JSON object,
+    # then get all playlists from the database that have matching ID's
     playlists = [playlist['id'] for playlist in data['playlists']]
     playlists = Playlist.query.filter(Playlist.id.in_(playlists)).all()
-    print(playlists)
 
+    # Loop over the playlists and add the song to each one. If the playlist creator ID does not
+    # match the currently logged in user, redirect
     for playlist in playlists:
 
         if playlist.user_id != g.user.id:
@@ -390,37 +502,59 @@ def add_song_to_playlist():
     return redirect(request.referrer)
 
 
-@app.route('/playlists/<int:playlist_id>/remove-song', methods=["POST"])
+@ app.route('/playlists/<int:playlist_id>/remove-song', methods=["POST"])
 def remove_song_from_playlist(playlist_id):
+    """Remove a song from a playlist given a playlist ID"""
+
+    # Check that a user is logged in, if not redirect
+    if not g.user:
+        flash('Access Unauthorized! Please Login', 'danger')
+
+        return redirect('/')
+
+    # Get song info from the post request body
+    songInfo = loads(request.json['json'])
+
+    # Get playlist from the database
+    playlist = Playlist.query.get_or_404(playlist_id)
+
+    # Check that playlist creator ID matches the currently logged in user ID, if not redirect
+    if playlist.user_id != g.user.id:
+        flash("You may not remove a song from another user's playlist")
+        return redirect('/')
+
+    # remove the song from the playlist
+    playlist.remove_song(songInfo['id'])
+    db.session.commit()
+
+    return redirect(request.referrer)
+
+
+# *******************
+# Routes for messages
+# *******************
+
+@ app.route('/messages')
+def show_messages():
 
     if not g.user:
         flash('Access Unauthorized! Please Login', 'danger')
 
         return redirect('/')
 
-    songInfo = loads(request.json['json'])
-    print(songInfo)
+    return render_template('users/current/messages.html', messages=g.user.received_msgs)
 
-    playlist = Playlist.query.get_or_404(playlist_id)
-
-    if playlist.user_id != g.user.id:
-        flash("You may not remove a song from another user's playlist")
-        return redirect('/')
-
-    playlist.remove_song(songInfo['id'])
-    db.session.commit()
-
-    return redirect(request.referrer)
 
 # *****************
 # API ENDPOINTS
 # ****************
 
 
-@app.route('/api/likes')
+@ app.route('/api/likes')
 def get_liked_songs():
     """Returns a list of song ID's for all liked songs in the database"""
 
+    # If a user is not logged in, return an empty list
     if not g.user:
         liked_songs = []
 
@@ -429,7 +563,7 @@ def get_liked_songs():
     return jsonify(liked_songs)
 
 
-@app.route('/api/users')
+@ app.route('/api/users')
 def get_users():
     """Returns a list of users' info from the database"""
 
@@ -455,16 +589,22 @@ def get_users():
     return jsonify(users)
 
 
-@app.route('/api/songs/<int:song_id>/playlists')
+@ app.route('/api/songs/<int:song_id>/playlists')
 def get_playlists_for_song(song_id):
     """
-    Returns a list of id's for all current user's playlists that a song is present in 
+    Returns a list of id's for all current user's playlists that a song is present in
     """
+
+    # If a user is not logged in, return an empty list
     if not g.user:
         playlistIds = []
 
+    # Get song from database
     song = Song.query.filter(Song.id == song_id).one_or_none()
 
+    # If song is in database, return a list of playlist IDs. Only playlists that were created by the
+    # currently logged in user and contain the song are returned. If the song is not found in the
+    # database, return an empty list
     if song:
         playlistIds = [playlist.id
                        for playlist in song.playlists if playlist.creator.id == g.user.id]

@@ -9,11 +9,13 @@
 {% block user_playlists %}{{url_for('user_playlists', user_id=0)}}{% endblock %}
 
 {% block profile_actions %}
-<div class="row text-center justify-content-center">
-  <div class="col-md-4">
+<div class="row text-center justify-content-center my-3">
       <a href="{{url_for('edit_my_profile')}}">
-          <button class="btn btn-lg btn-primary text-center">Edit Profile</button>
+          <button class="btn btn-info text-center">Edit Profile</button>
       </a>
-  </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+
 {% endblock %}

@@ -75,12 +75,45 @@ Coded by www.creative-tim.com
   </div>
   {%- endmacro %}
 
+
+
   {% macro add_remove(song,user,playlist) -%}
   <a type="button" class="dropdown-item" data-toggle="modal" data-target="#addToPlaylist" data-song-info="{{song.serialize()}}">Add Song to Playlist</a>
   {% if playlist and user.id == playlist.creator.id%}
   <a href="#" class="remove-song dropdown-item" data-song-info="{{song.serialize()}}" data-playlist-id="{{playlist.id}}">Remove From Playlist</a>
   {% endif %}
   {% endmacro %}
+
+
+
+  {% macro render_message(message) -%}
+
+  {% if message.category == 'fr' %}
+  <div>
+    <p>
+      <a href="{{url_for('user_profile', user_id=message.author.id)}}">{{message.author.username}}</a> 
+      has requested to be your friend
+    </p>
+    <button class="btn btn-success accept-friend" data-user-id="{{message.author_id}}">Accept</button>
+    <button class="btn btn-danger deny-friend" data-user-id="{{message.author_id}}">Deny</button>
+  </div>
+
+  {% elif message.category == 'dm' %}
+  <p>
+    Message from <a href="{{url_for('user_profile', user_id=message.author.id)}}">{{message.author.username}}</a>:
+  </p>
+  <p><em>{{message.content}}</em></p>
+  {% endif %}
+
+  {%- endmacro %}
+
+
+
+  {% macro render_friend(friend) -%}
+
+  <a href="{{url_for('user_profile', user_id=friend.id)}}">@{{friend.username}}</a>
+
+  {%- endmacro %}
 
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <script src="/static/paper-dashboard-master/assets/js/core/jquery.min.js"></script>

@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import or_
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 import json
@@ -6,6 +7,13 @@ import json
 
 bcrypt = Bcrypt()
 db = SQLAlchemy()
+
+
+# msg_categories = {
+#     friend_request = 'fr',
+#     direct_message = 'dm',
+#     band-invite = 'bi'
+# }
 
 
 class Friend(db.Model):
@@ -99,10 +107,11 @@ class User(db.Model):
         db.Text, nullable=True, default='https://facebooktimelinephotos.files.wordpress.com/2012/01/grass-landscape.png')
 
     instrument_id = db.Column(db.Integer, db.ForeignKey(
-        'instruments.id'), nullable=True, default=None)
+        'instruments.id', ondelete='SET NULL'), nullable=True, default=None)
 
     bio = db.Column(db.Text, nullable=True)
 
+    # To be used in future updates
     created_at = db.Column(db.DateTime, nullable=False,
                            default=datetime.utcnow())
 
@@ -113,8 +122,19 @@ class User(db.Model):
     playlists = db.relationship(
         'Playlist', secondary='playlists_users', backref='users')
 
-    friends = db.relationship('User', secondary='friends', primaryjoin=(Friend.user_1 == id),
-                              secondaryjoin=(Friend.user_2 == id))
+    # friends = db.relationship('User', secondary='friends', primaryjoin='Friend.user_1 == User.id',
+    #                           secondaryjoin='Friend.user_2 == User.id')
+
+    @property
+    def friends(self):
+        f1_ids = db.session.query(Friend.user_2).filter(
+            Friend.user_1 == self.id).all()
+        f1 = User.query.filter(User.id.in_(f1_ids)).all()
+        f2_ids = db.session.query(Friend.user_1).filter(
+            Friend.user_2 == self.id).all()
+        f2 = User.query.filter(User.id.in_(f2_ids)).all()
+
+        return f1 + f2
 
     @property
     def full_name(self):
@@ -161,6 +181,13 @@ class User(db.Model):
 
         return False
 
+    @classmethod
+    def get_friends(cls, user_id):
+
+        user = cls.query.get(user_id)
+
+        return user.friends
+
     def serialize(self):
         """return a JSON object with basic user info"""
 
@@ -173,6 +200,52 @@ class User(db.Model):
         }
 
         return json.dumps(obj)
+
+    def check_if_friends(self, user_id):
+
+        user = User.query.get_or_404(user_id)
+
+        if user in self.friends:
+            return True
+        else:
+            return False
+
+    def send_friend_request(self, recipient_id):
+
+        new_request = Message(
+            author_id=self.id, category='fr', content='', recipient_id=recipient_id)
+
+        db.session.add(new_request)
+
+    def accept_friend_request(self, friend_id):
+
+        request = Message.query.filter(
+            Message.author_id == friend_id, Message.recipient_id == self.id).one()
+        db.session.delete(request)
+
+        new_friend = Friend(user_1=self.id, user_2=friend_id)
+        db.session.add(new_friend)
+
+    def remove_friend(self, user_id):
+
+        f1 = Friend.query.filter(
+            Friend.user_1 == self.id, Friend.user_2 == user_id).first()
+        f2 = Friend.query.filter(
+            Friend.user_2 == self.id, Friend.user_1 == user_id).first()
+
+        if f1:
+            db.session.delete(f1)
+        if f2:
+            db.session.delete(f2)
+
+    def deny_friend_request(self, friend_id):
+
+        request = Message.query.filter(
+            Message.author_id == friend_id, Message.recipient_id == self.id, Message.category == 'fr').first()
+
+        if request:
+            db.session.delete(request)
+            return True
 
 
 class Instrument(db.Model):
@@ -236,9 +309,11 @@ class Playlist(db.Model):
 
     is_private = db.Column(db.Boolean, nullable=False, default=False)
 
+    # To be used in future updates
     created_at = db.Column(db.DateTime, nullable=False,
                            default=datetime.utcnow())
 
+    # to be used in future updates
     updated_at = db.Column(db.DateTime, nullable=False,
                            default=datetime.utcnow())
 
@@ -328,7 +403,7 @@ class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
     author_id = db.Column(
-        db.Integer, db.ForeignKey('users.id'), nullable=False)
+        db.Integer, db.ForeignKey('users.id', ondelete='cascade'), nullable=False)
 
     content = db.Column(db.Text, nullable=False)
 
@@ -337,10 +412,19 @@ class Message(db.Model):
     recipient_id = db.Column(
         db.Integer, db.ForeignKey('users.id'), nullable=True)
 
-    band_id = db.Column(db.Integer, db.ForeignKey('bands.id'), nullable=True)
+    band_id = db.Column(db.Integer, db.ForeignKey(
+        'bands.id', ondelete='cascade'), nullable=True)
 
     time_sent = db.Column(db.DateTime, nullable=False,
                           default=datetime.utcnow())
+
+    author = db.relationship(
+        'User', primaryjoin='Message.author_id == User.id', backref='sent_msgs')
+
+    recipient = db.relationship(
+        'User', primaryjoin='Message.recipient_id == User.id', backref='received_msgs')
+
+    band = db.relationship('Band', primaryjoin='Message.band_id == Band.id')
 
 
 def connect_db(app):
