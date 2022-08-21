@@ -6,7 +6,13 @@
 
 {% block panel_title %} <p class="navbar-brand">My Profile</p> {% endblock %}
 
-{% block user_playlists %}{{url_for('user_playlists', user_id=0)}}{% endblock %}
+{% block user_playlists %}
+<div class="col-md-4 col-8 ml-auto mr-auto">
+    <h5>{{user.playlists | length}}<br>
+      <a href="{% block user_playlists_link %}{{url_for('user_playlists', user_id=0)}}{% endblock %}"><small>Playlists</small></a>
+    </h5>
+</div>
+{% endblock %}
 
 {% block profile_actions %}
 <div class="row text-center justify-content-center my-3">

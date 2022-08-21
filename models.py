@@ -3,6 +3,7 @@ from sqlalchemy import or_
 from flask_bcrypt import Bcrypt
 from datetime import datetime
 import json
+from flask import g
 
 
 bcrypt = Bcrypt()
@@ -181,13 +182,6 @@ class User(db.Model):
 
         return False
 
-    @classmethod
-    def get_friends(cls, user_id):
-
-        user = cls.query.get(user_id)
-
-        return user.friends
-
     def serialize(self):
         """return a JSON object with basic user info"""
 
@@ -203,7 +197,7 @@ class User(db.Model):
 
     def check_if_friends(self, user_id):
 
-        user = User.query.get_or_404(user_id)
+        user = User.query.get(user_id)
 
         if user in self.friends:
             return True
@@ -226,6 +220,28 @@ class User(db.Model):
         new_friend = Friend(user_1=self.id, user_2=friend_id)
         db.session.add(new_friend)
 
+    def deny_friend_request(self, friend_id):
+
+        request = Message.query.filter(
+            Message.author_id == friend_id, Message.recipient_id == self.id, Message.category == 'fr').first()
+
+        if request:
+            db.session.delete(request)
+            return True
+
+    def check_pending_request(self, other_user_id):
+
+        request1 = Message.query.filter(
+            Message.author_id == other_user_id, Message.recipient_id == self.id, Message.category == 'fr').first()
+
+        request2 = Message.query.filter(
+            Message.author_id == self.id, Message.recipient_id == other_user_id, Message.category == 'fr').first()
+
+        if request1 or request2:
+            return True
+        else:
+            return False
+
     def remove_friend(self, user_id):
 
         f1 = Friend.query.filter(
@@ -237,15 +253,6 @@ class User(db.Model):
             db.session.delete(f1)
         if f2:
             db.session.delete(f2)
-
-    def deny_friend_request(self, friend_id):
-
-        request = Message.query.filter(
-            Message.author_id == friend_id, Message.recipient_id == self.id, Message.category == 'fr').first()
-
-        if request:
-            db.session.delete(request)
-            return True
 
 
 class Instrument(db.Model):

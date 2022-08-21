@@ -1,0 +1,26 @@
+{% extends 'home.html' %}
+
+{% from 'base.html' import render_friend %}
+
+
+{% block friends %}active{% endblock %}
+
+
+{% block panel_title %} 
+{% if user.id == curr_user.id %}
+<p class="navbar-brand">My Friends</p> 
+{% else %}
+<h5><a href="{{url_for('user_profile', user_id=user.id)}}" class="link-dark">@{{user.username}}</a>'s Friends</h5>
+{% endif %}
+{% endblock %}
+
+
+{% block panel_content %}
+
+<!-- <h5>@{{user.username}}'s Friends</h5>
+<hr> -->
+{% for friend in user.friends %}
+{{render_friend(friend)}}
+{% endfor %}
+
+{% endblock %}

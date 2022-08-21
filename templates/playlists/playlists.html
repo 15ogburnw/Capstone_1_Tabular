@@ -2,7 +2,7 @@
 
 
 
-{% block panel_title %} <p class="navbar-brand">{{user.username}}'s Playlists</p> {% endblock %}
+{% block panel_title %} <h5><a href="{{url_for('user_profile',user_id=user.id)}}" class="link-dark">@{{user.username}}</a>'s Playlists</h5> {% endblock %}
 
 {% block panel_content %}
 

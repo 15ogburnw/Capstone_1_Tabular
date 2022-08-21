@@ -8,6 +8,14 @@
 {% block panel_content %}
 
 <h1 class="title">{{playlist.name}}</h1>
+{% if playlist.creator.id != user.id %}
+    {% if playlist not in user.playlists %}
+    <i class="fa-light fa-heart" style="color:red"></i>
+    {% else %}
+    <i class="fa-solid fa-heart" style="color:red"></i>
+    {% endif %}
+{% endif %}
+
 <h3><small>Created by {{playlist.creator.username}}</small></h3>
 
 {% if playlist.songs | length < 1 %}

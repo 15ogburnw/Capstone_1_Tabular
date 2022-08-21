@@ -194,14 +194,14 @@ def user_profile(user_id):
 
     # If the user ID is 0, display the user page for currently logged in user. Else, show
     # page of user matching user ID
-    if user_id == 0:
+    if user_id == g.user.id:
         return render_template('users/current/my_profile.html', user=g.user)
 
     user = User.query.get(user_id)
 
-    my_friends = User.get_friends(g.user.id)
+    curr_user = g.user
 
-    return render_template('users/profile.html', user=user, my_friends=my_friends)
+    return render_template('users/profile.html', user=user)
 
 
 @app.route('/users/profile/edit', methods=['GET', 'POST'])
@@ -317,7 +317,7 @@ def user_playlists(user_id):
 
                 return redirect(url_for('user_playlists', user_id=0))
 
-    if user_id == 0:
+    if user_id == g.user.id:
         # If user id is 0, direct to logged in user's playlists
         return render_template('users/current/my_playlists.html', user=g.user)
 
@@ -339,6 +339,11 @@ def send_friend_request(user_id):
     if g.user.check_if_friends(user_id):
 
         flash('You are already friends!')
+        return redirect(request.referrer)
+
+    elif g.user.check_pending_request(other_user_id=user_id):
+
+        flash('You have already sent this user a friend request!')
         return redirect(request.referrer)
 
     # Create a friend request message to user matching user ID
@@ -384,7 +389,7 @@ def deny_friend_request(user_id):
 
 
 @app.route('/users/<int:user_id>/friends')
-def show_friends(user_id):
+def user_friends(user_id):
 
     # Check that a user is logged in
     if not g.user:
@@ -392,9 +397,13 @@ def show_friends(user_id):
 
         return redirect('/')
 
-    if user_id == 0:
+    if user_id == g.user.id:
 
-        return render_template('users/current/my_friends.html', user=g.user)
+        return render_template('users/friends.html', user=g.user)
+
+    user = User.query.get_or_404(user_id)
+
+    return render_template('/users/friends.html', user=user)
 
 
 @app.route('/users/remove-friend/<user_id>', methods=["POST"])
@@ -413,7 +422,7 @@ def remove_friend(user_id):
     g.user.remove_friend(user_id)
     db.session.commit()
 
-    return redirect(url_for('show_friends', user_id=0))
+    return redirect(url_for('user_friends', user_id=g.user.id))
 
 
 # *************

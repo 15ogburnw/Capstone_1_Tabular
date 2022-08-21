@@ -182,7 +182,7 @@ $(document).ready(function () {
 
   function getUserHTML(user) {
     const $userLink = $(
-      `<a href="/users/${user.id}/profile">${user.username}</a>`
+      `<a href="/users/${user.id}/profile">@${user.username}</a>`
     );
     return $("<li>").append($userLink);
   }
