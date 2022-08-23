@@ -56,30 +56,32 @@ class PlaylistSong(db.Model):
         'songs.id', ondelete='cascade'), primary_key=True)
 
 
-class BandMember(db.Model):
+# ************ REVISIT LATER *************
 
-    """Relationship for members of a band"""
+# class BandMember(db.Model):
 
-    __tablename__ = 'bands_members'
+#     """Relationship for members of a band"""
 
-    band_id = db.Column(db.Integer, db.ForeignKey(
-        'bands.id', ondelete='cascade'), primary_key=True)
+#     __tablename__ = 'bands_members'
 
-    user_id = db.Column(db.Integer, db.ForeignKey(
-        'users.id', ondelete='cascade'), primary_key=True)
+#     band_id = db.Column(db.Integer, db.ForeignKey(
+#         'bands.id', ondelete='cascade'), primary_key=True)
+
+#     user_id = db.Column(db.Integer, db.ForeignKey(
+#         'users.id', ondelete='cascade'), primary_key=True)
 
 
-class BandPlaylist(db.Model):
+# class BandPlaylist(db.Model):
 
-    """Relationship for playlists that belong to a band"""
+#     """Relationship for playlists that belong to a band"""
 
-    __tablename__ = 'bands_playlists'
+#     __tablename__ = 'bands_playlists'
 
-    band_id = db.Column(db.Integer, db.ForeignKey(
-        'bands.id', ondelete='cascade'), primary_key=True)
+#     band_id = db.Column(db.Integer, db.ForeignKey(
+#         'bands.id', ondelete='cascade'), primary_key=True)
 
-    playlist_id = db.Column(db.Integer, db.ForeignKey(
-        'playlists.id', ondelete='cascade'), primary_key=True)
+#     playlist_id = db.Column(db.Integer, db.ForeignKey(
+#         'playlists.id', ondelete='cascade'), primary_key=True)
 
 
 class User(db.Model):
@@ -123,9 +125,6 @@ class User(db.Model):
     playlists = db.relationship(
         'Playlist', secondary='playlists_users', backref='users')
 
-    # friends = db.relationship('User', secondary='friends', primaryjoin='Friend.user_1 == User.id',
-    #                           secondaryjoin='Friend.user_2 == User.id')
-
     @property
     def friends(self):
         f1_ids = db.session.query(Friend.user_2).filter(
@@ -139,8 +138,10 @@ class User(db.Model):
 
     @property
     def full_name(self):
-
-        return self.first_name + ' ' + self.last_name
+        if self.last_name:
+            return self.first_name + ' ' + self.last_name
+        else:
+            return self.first_name
 
     def __repr__(self):
 
@@ -371,34 +372,35 @@ class PlaylistUser(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey(
         'users.id', ondelete='cascade'), primary_key=True)
 
+# ************** REVISIT LATER *****************
 
-class Band(db.Model):
+# class Band(db.Model):
 
-    """Model for a 'band' or group of users in the system"""
+#     """Model for a 'band' or group of users in the system"""
 
-    __tablename__ = 'bands'
+#     __tablename__ = 'bands'
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-    name = db.Column(db.String(50), nullable=False, unique=True)
+#     name = db.Column(db.String(50), nullable=False, unique=True)
 
-    genre = db.Column(db.String(30), nullable=True)
+#     genre = db.Column(db.String(30), nullable=True)
 
-    description = db.Column(db.Text, nullable=True)
+#     description = db.Column(db.Text, nullable=True)
 
-    band_pic = db.Column(db.Text, nullable=True,
-                         default='https://www.pngitem.com/pimgs/m/19-195664_rock-band-clip-art-musical-ensemble-silhouette-vector.png')
+#     band_pic = db.Column(db.Text, nullable=True,
+#                          default='https://www.pngitem.com/pimgs/m/19-195664_rock-band-clip-art-musical-ensemble-silhouette-vector.png')
 
-    playlists = db.relationship('Playlist', secondary='bands_playlists')
+#     playlists = db.relationship('Playlist', secondary='bands_playlists')
 
-    members = db.relationship(
-        'User', secondary='bands_members', backref='bands')
+#     members = db.relationship(
+#         'User', secondary='bands_members', backref='bands')
 
-    messages = db.relationship('Message')
+#     messages = db.relationship('Message')
 
-    def __repr__(self):
+#     def __repr__(self):
 
-        return f"<Band {self.name}>"
+#         return f"<Band {self.name}>"
 
 
 class Message(db.Model):
@@ -419,9 +421,10 @@ class Message(db.Model):
     recipient_id = db.Column(
         db.Integer, db.ForeignKey('users.id'), nullable=True)
 
-    band_id = db.Column(db.Integer, db.ForeignKey(
-        'bands.id', ondelete='cascade'), nullable=True)
+    # band_id = db.Column(db.Integer, db.ForeignKey(
+    #     'bands.id', ondelete='cascade'), nullable=True)
 
+    # To be used for future messaging features
     time_sent = db.Column(db.DateTime, nullable=False,
                           default=datetime.utcnow())
 
@@ -431,7 +434,7 @@ class Message(db.Model):
     recipient = db.relationship(
         'User', primaryjoin='Message.recipient_id == User.id', backref='received_msgs')
 
-    band = db.relationship('Band', primaryjoin='Message.band_id == Band.id')
+# band = db.relationship('Band', primaryjoin='Message.band_id == Band.id')
 
 
 def connect_db(app):
