@@ -108,6 +108,10 @@ def register():
     and re-present form.
     """
 
+    if g.user:
+
+        return redirect('/')
+
     form = NewUserForm()
 
     if form.validate_on_submit():
@@ -120,14 +124,21 @@ def register():
                 last_name=form.last_name.data or None
             )
             db.session.commit()
+            do_login(user)
 
-        except IntegrityError:
-            form.username.errors.append('Username already taken!')
-            return render_template('users/register.html', form=form)
+        except IntegrityError as err:
 
-        do_login(user)
+            errorInfo = err.orig.args[0]
 
-        return redirect("/")
+            if 'users_email_key' in errorInfo:
+                form.email.errors.append(
+                    'Email already associated with an account!')
+                return render_template('users/register.html', form=form)
+
+            if 'users_username_key' in errorInfo:
+                form.username.errors.append(
+                    'Username taken! Please try a different username.')
+                return render_template('users/register.html', form=form)
 
     else:
         return render_template('users/register.html', form=form)
