@@ -3,70 +3,103 @@
 {% from 'base.html' import add_remove, song_modal%}
 
 
-{% block panel_title %} <p class="navbar-brand">Playlists</p> {% endblock %}
+{% block panel_title %}PLAYLISTS{% endblock %}
 
 {% block panel_content %}
 
-<span class="h3">{{playlist.name}}</span>
-{% if playlist.creator.id != user.id %}
-    {% if playlist not in user.playlists %}
-    <a href="#" class="h3 ml-3"><i class="fa-regular fa-heart" id="playlist-unliked" data-playlist-id="{{playlist.id}}" style="color:red;cursor:pointer;"></i></a>
-    {% else %}
-    <a href="#" class="h3 ml-3"><i class="fa-solid fa-heart" id="playlist-liked" data-playlist-id="{{playlist.id}}" style="color:red;cursor:pointer;"></i></a>
-    {% endif %}
-{% endif %}
-
-<p><em>Created by @<a href="{{url_for('user_profile',user_id=playlist.creator.id)}}" style="color:black">{{playlist.creator.username}}</a></em></p>
-<hr>
-
-{% if playlist.songs | length < 1 %}
-<h5>There are no songs in this playlist! </h5>
-{% endif %}
-
-<ul id="songs-list">
-
-
-    {% for song in playlist.songs %}
-    <li>
-        <a href="{{song.tab_url}}">{{song.title}} by {{song.artist}}</a>
-
-        <div class="btn-group dropright">
-            <a class="ml-3" type="button"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fa-solid fa-bars"></i>
-            </a>
-            <div class="dropdown-menu">
-                {% if song in user.likes %}
-                <a href="#" class="like dropdown-item" data-is-liked='true' data-song-info = '{{song.serialize()}}'>Unlike</a>
-                {% else %}
-                <a href="#" class="like dropdown-item" data-is-liked="false" data-song-info = '{{song.serialize()}}'>Like</a>
-                {% endif %}
-                {{add_remove(song,user,playlist)}}
-            </div>
-        </div>
-
-        <br>
-
+<div class="card">
+    <div class="card-body">
+        <span class="h3">{{playlist.name}}</span>
+        {% if playlist.creator.id != user.id %}
+            {% if playlist not in user.playlists %}
+            <a href="#" class="h3 ml-3"><i class="fa-regular fa-heart" id="playlist-unliked" data-playlist-id="{{playlist.id}}" style="color:red;cursor:pointer;"></i></a>
+            {% else %}
+            <a href="#" class="h3 ml-3"><i class="fa-solid fa-heart" id="playlist-liked" data-playlist-id="{{playlist.id}}" style="color:red;cursor:pointer;"></i></a>
+            {% endif %}
+        {% endif %}
         
-    </li>
-    {% endfor %}
-
-</ul>
-
-{% if playlist.creator.id == user.id %}
-<form action="{{url_for('delete_playlist',playlist_id=playlist.id)}}" class="form-inline" method="post">
-    <div class="dropdown mr-2">
-        <button class="btn btn-primary dropdown-toggle" type="button" id="addSongs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Add Songs
-        </button>
-        <div class="dropdown-menu" aria-labelledby="addSongs">
-          <a class="dropdown-item" href="{{url_for('search_page')}}">Search for Songs</a>
-          <a class="dropdown-item" href="{{url_for('show_playlist',playlist_id=0)}}">Add From Liked Songs</a>
+        <p><em>Created by @<a href="{{url_for('user_profile',user_id=playlist.creator.id)}}" style="color:black">{{playlist.creator.username}}</a></em></p>
+        <hr>
+        
+        {% if playlist.songs | length < 1 %}
+        <h5>There are no songs in this playlist! </h5>
+        {% endif %}
+        
+        <div id="songs-list">
+        
+            <table class="table table-striped table-bordered">
+        
+                {% if playlist.songs | length > 0 %}
+                <thead>
+                    <tr>
+                        <td>
+                           <b style="font-size: 24px;">Songs</b>
+                        </td>
+                    </tr>
+                </thead>
+                {% endif %}
+        
+                
+                <tbody>
+                    {% for song in playlist.songs %}
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col">
+                                    <p class="my-0" style="font-size: 18px;"><a href="{{song.tab_url}}" class="text-info"><b>{{song.title}}</b></a></p>
+                                    <p class="my-0"><em>by {{song.artist}}</em></p>  
+                                </div>
+            
+                                <div class="col d-flex justify-content-end align-items-center">
+                                    {% if song not in user.likes %}
+                                    <a href="#" class="mr-2" style="font-size: 18px;">
+                                        <i class="fa-regular like fa-heart" data-is-liked="false" data-song-info="{{song.serialize()}}" style="color:red;cursor:pointer;"></i>
+                                    </a>
+                                    {% else %}
+                                    <a href="#" class="mr-2" style="font-size: 18px;">
+                                        <i class="fa-solid like fa-heart" data-is-liked="true" data-song-info="{{song.serialize()}}" style="color:red;cursor:pointer;"></i>
+                                    </a>
+                                    {% endif %}
+                                    <div class="btn-group dropleft  mr-4">
+                                        <a class="ml-3" type="button"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa-solid fa-bars"></i>
+                                        </a>
+                                        <div class="dropdown-menu">
+                                            {{add_remove(song,user,playlist)}}
+                                        </div>
+                                    </div> 
+                                </div>
+            
+                            </div>
+                                          
+                        </td>
+            
+                    </tr>  
+                    {% endfor %}   
+                </tbody>
+        
+            </table>
+        
         </div>
+        
+        {% if playlist.creator.id == user.id %}
+        <form action="{{url_for('delete_playlist',playlist_id=playlist.id)}}" class="form-inline" method="post">
+            <div class="dropdown mr-2">
+                <button class="btn btn-primary dropdown-toggle" type="button" id="addSongs" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Add Songs
+                </button>
+                <div class="dropdown-menu" aria-labelledby="addSongs">
+                  <a class="dropdown-item" href="{{url_for('search_page')}}">Search for Songs</a>
+                  <a class="dropdown-item" href="{{url_for('show_playlist',playlist_id=0)}}">Add From Liked Songs</a>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-danger">Delete Playlist</button>
+        </form>
+        
+        {% endif %}        
     </div>
-    <button type="submit" class="btn btn-danger">Delete Playlist</button>
-</form>
+</div>
 
-{% endif %}
 
 {{song_modal(playlists=user.playlists)}}
 

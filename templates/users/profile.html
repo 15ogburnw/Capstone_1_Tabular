@@ -1,35 +1,31 @@
 {% extends 'home.html' %}
+{% set user_playlists = user.playlists | selectattr("user_id", "equalto", user.id) | list %}
 
-
-{% block panel_title %} <p class="navbar-brand">{{user.username}}</p> {% endblock %}
+{% block panel_title %}@{{user.username}}'S PROFILE{% endblock %}
 
 
 {% block panel_content %}
 
-<div class="row justify-content-center">
+<div class="row">
     <div class="col-xl-6 col-md-8">
       <div class="card card-user">
         <div class="image">
           <img style="height:100%; width:100%; border-radius: 10px 10px 0px 0px;" src="{{user.cover_pic}}" alt="cover photo">
         </div>
-        <div class="card-body">
+        <div class="card-body mb-0">
           <div class="author">
-            <a href="#">
-              <img class="avatar border-gray" src="{{user.profile_pic}}" alt="profile photo">
-              <h5 class="title">
-                @{{user.username}}
-                {% if user.check_if_friends(curr_user.id) %}
-                <br>
-                <span class="badge badge-success">Friends <i class="fa-solid fa-check"></i></span>
-                {% endif %}
-              </h5>
-            </a>
-            <p>
-              {{user.full_name}}
-            </p>
+            
+            <img class="avatar border-gray" src="{{user.profile_pic}}" alt="profile photo">
+            <h2 class="title mb-0">{{user.full_name}}</h2>
+            <h5 class="mt-0">
+              @{{user.username}}
+              {% if user.check_if_friends(curr_user.id) %}
+              <br>
+              <span class="badge badge-success mt-2">Friends <i class="fa-solid fa-check"></i></span>
+              {% endif %}
+            </h5>
 
             <p>
-              
               <span class="iconify mr-2" data-icon="{{user.instrument.icon}}" data-width="30" data-height="30"></span>
               <span>{{user.instrument.name}}</span>
             </p>
@@ -42,20 +38,23 @@
         <div class="card-footer">
           <hr>
           <div class="button-container">
-            <div class="row">
+            <div class="row mb-3">
               <div class="col-md-4 col-8 ml-auto mr-auto">
-                <h5>{{user.friends | length}}<br><a href="{{url_for('user_friends',user_id=user.id)}}"><small>Friends</small></a></h5>
+                <h3 class="mb-0"><b>{{user.friends | length}}</b></h3>
+                <a href="{{url_for('user_friends',user_id=user.id)}}"><button class="btn btn-outline-info btn-round">Friends</button></a>
               </div>
 
               {% block user_playlists %}
               <div class="col-md-4 col-8 ml-auto mr-auto">
-                <h5>{{user.playlists | length}}<br>
+                
+                  <h3 class="mb-0"><b>{{user_playlists | length}}</b></h3>
+                  
                   {% if user.check_if_friends(curr_user.id) %}
-                  <a href="{% block user_playlists_link %}{{url_for('user_playlists', user_id=user.id)}}{% endblock %}"><small>Playlists</small></a>
+                  <a href="{% block user_playlists_link %}{{url_for('user_playlists', user_id=user.id)}}{% endblock %}"><button class="btn btn-outline-info btn-round">Playlists</button></a>
                   {% else %}
-                  <small>Playlists</small>
+                  <button class="btn btn-outline-info btn-round disabled">Playlists</button>
                   {% endif %}
-                </h5>
+                
               </div>
               {% endblock %}
 
@@ -64,6 +63,7 @@
               </div> -->
             </div>
 
+            <hr>
             {% block profile_actions %}
             {% if user.check_pending_request(other_user_id=curr_user.id)%}
             <div class="row justify-content-center my-3">

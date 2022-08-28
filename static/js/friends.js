@@ -15,11 +15,25 @@ $(document).ready(function () {
   $("#notifications").on("click", ".accept-friend", async function (e) {
     const userID = $(this).data("user-id");
     const $success = $("<div>")
-      .addClass("alert alert-success")
-      .append("Success! You are now friends!");
+      .addClass("alert alert-success alert-dismissable fade show")
+      .append("Success! You are now friends!")
+      .append(
+        $("<button>")
+          .addClass("close")
+          .attr("data-dismiss", "alert")
+          .append($("<span>").append("&times;"))
+      );
     const resp = await axios.post(`${BASE_URL}/users/accept-request/${userID}`);
 
-    $(this).parent().empty().append($success);
+    $(this).closest("div.notification-shell").empty().append($success);
+    let numNotifications = parseInt($("#notifications-badge").text());
+    numNotifications--;
+
+    if (numNotifications === 0) {
+      $("#notifications-badge").remove();
+    } else {
+      $("#notifications-badge").text(numNotifications);
+    }
   });
 
   $("#notifications").on("click", ".deny-friend", async function (e) {
@@ -27,6 +41,15 @@ $(document).ready(function () {
 
     const resp = await axios.post(`${BASE_URL}/users/deny-request/${userID}`);
 
-    $(this).parent().empty();
+    $(this).closest("div.notification-shell").empty();
+
+    let numNotifications = parseInt($("#notifications-badge").text());
+    numNotifications--;
+
+    if (numNotifications === 0) {
+      $("#notifications-badge").remove();
+    } else {
+      $("#notifications-badge").text(numNotifications);
+    }
   });
 });

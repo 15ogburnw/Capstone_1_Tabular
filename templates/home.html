@@ -1,12 +1,12 @@
 {% extends 'base.html'%}
-{% set notifications = g.user.received_msgs | selectattr("category", "equalto", "fr") | list %}"
+{% set notifications = g.user.received_msgs | selectattr("category", "equalto", "fr") | list %}
 
 {% block content %}
 
-  <div class="wrapper ">
-    <div class="sidebar" data-color="white" data-active-color="danger">
+  <div class="wrapper">
+    <div class="sidebar" data-color="white" data-active-color="info">
       <div class="logo">
-        <a href="/" class="simple-text logo-normal">
+        <a href="/" class="simple-text logo-normal" style="font-size: 20px;">
           Tabular
 
         </a>
@@ -61,9 +61,8 @@
                 Notifications   
                 
                 {% if notifications | length > 0 %}
-                <button class="btn btn-sm btn-danger btn-fab btn-icon btn-round ml-3">{{notifications | length}}</button>
+                <button class="btn btn-sm btn-danger btn-fab btn-icon btn-round ml-3" id="notifications-badge">{{notifications | length}}</button>
                 {% endif %}
-                
                 
               </p>
 
@@ -85,18 +84,15 @@
     </div>
 
     
-    <div class="main-panel">
+    <div class="main-panel h-100">
       <!-- Navbar -->
-      <nav class="navbar navbar-expand-lg navbar-absolute fixed-top navbar-transparent">
+      <nav class="navbar navbar-expand-lg navbar-absolute fixed-top navbar-transparent" >
         <div class="container-fluid">
           <div class="navbar-wrapper">
-            {% block panel_title %}{% endblock %}
+            <h4 class="my-0"><b>{% block panel_title %}{% endblock %}</b></h4>
 
           </div>
           <div class="collapse navbar-collapse justify-content-end">
-            <a class="mr-4" href="{{url_for('user_profile', user_id=curr_user.id)}}">
-              <!-- <p class="text-hide" style="background-image:url({{curr_user.profile_pic}}); width: 50px; height: 50px; border-radius: 25px;">Profile Pic</p> -->
-            </a>
             
             <a class="navbar-link mr-2" href="{{url_for('user_profile', user_id=curr_user.id)}}">
               <img src="{{curr_user.profile_pic}}" style="width:30px; height:30px; border-radius: 15px; border: solid gray 1px;">
@@ -111,10 +107,11 @@
       <!-- End Navbar -->
 
       
-      <div class="content">
+      <div class="content main-panel w-100">
         {% block panel_content %}
 
         {% endblock %}
+        
       </div>
       
     </div>

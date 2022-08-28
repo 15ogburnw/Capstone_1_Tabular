@@ -4,39 +4,77 @@
 
 
 
-{% block panel_title %} <p class="navbar-brand">Playlists</p> {% endblock %}
+{% block panel_title %}PLAYLISTS{% endblock %}
 
 {% block panel_content %}
 
-<h1 class="title">My Liked Songs</h1>
-
-{% if user.likes | length < 1 %}
-<h5>You have no liked songs!
-    <a href="{{url_for('search_page')}}">Search for Songs</a>
-</h5>
-{% endif %}
-
-<ul id="liked-songs">
-
-
-
-    {% for song in user.likes %}
-    <li>
-        <a href="{{song.tab_url}}">{{song.title}} by {{song.artist}}</a>
-        <div class="btn-group dropright">
-            <a class="ml-3" type="button"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fa-solid fa-bars"></i>
-            </a>
-            <div class="dropdown-menu">
-                <a href="#" class="like dropdown-item" data-is-liked='true' data-song-info = '{{song.serialize()}}'>Unlike</a>
-                {{add_remove(song,user,playlist)}}
-            </div>
+<div class="card">
+    <div class="card-body">
+        {% if user.likes | length < 1 %}
+        <h5>You have no liked songs!
+            <a href="{{url_for('search_page')}}">Search for songs</a>
+        </h5>
+        {% endif %}
+        
+        <div id="liked-songs" class="m-3">
+        
+        
+        
+            <table class="table table-striped table-bordered mb-4">
+        
+                {% if user.likes | length > 0 %}
+                <thead>
+                    <tr>
+                        <td>
+                           <b style="font-size: 24px;">My Liked Songs</b>
+                        </td>
+                    </tr>
+                </thead>
+                {% endif %}
+        
+                
+                <tbody>
+                    {% for song in user.likes %}
+                    <tr>
+                        <td>
+                            <div class="row">
+                                <div class="col">
+                                    <p class="my-0" style="font-size: 18px;"><a href="{{song.tab_url}}" class="text-info"><b>{{song.title}}</b></a></p>
+                                    <p class="my-0"><em>by {{song.artist}}</em></p>  
+                                </div>
+            
+                                <div class="col d-flex justify-content-end align-items-center">
+        
+                                    <a href="#" class="mr-2" style="font-size: 18px;">
+                                        <i class="fa-solid like fa-heart" data-is-liked="true" data-song-info="{{song.serialize()}}" style="color:red;cursor:pointer;"></i>
+                                    </a>
+        
+                                    <div class="btn-group dropleft  mr-4">
+                                        <a class="ml-3" type="button"  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa-solid fa-bars"></i>
+                                        </a>
+                                        <div class="dropdown-menu">
+                                            {{add_remove(song,user)}}
+                                        </div>
+                                    </div> 
+                                </div>
+            
+                            </div>
+                                          
+                        </td>
+            
+                    </tr>  
+                    {% endfor %}   
+                </tbody>
+        
+                  
+            </table>
         </div>
-    </li>
+    </div>
+</div>
 
-    {% endfor %}
 
-</ul>
+
 
 {{song_modal(playlists=user.playlists)}}
 

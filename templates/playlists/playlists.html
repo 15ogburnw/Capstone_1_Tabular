@@ -2,20 +2,29 @@
 
 
 
-{% block panel_title %} <h5><a href="{{url_for('user_profile',user_id=user.id)}}" class="link-dark">@{{user.username}}</a>'s Playlists</h5> {% endblock %}
+{% block panel_title %}<a href="{{url_for('user_profile',user_id=user.id)}}" style="color:black;">@{{user.username}}</a>'s PLAYLISTS {% endblock %}
 
 {% block panel_content %}
 
-<ul class="playlists-list">
+<div class="card">
+    <div class="card-body">
+        <table class="playlists-list mb-4 mt-3 table table-striped table-bordered">
+            
+            {% for playlist in user.playlists %}
+                {% if playlist.creator.id == user.id %}
+                <tr>
+                    <td>
+                        <span class="ml-3 my-0 h5"><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}" class=" text-info"><b>{{playlist.name}}</b></a></span>
+                        <span class="my-0">(<em>{{playlist.songs | length}} Songs</em>)</span>
+                    </td>
+                </tr>
 
-    {% for playlist in user.playlists %}
-    <li>
-        <a href="{{url_for('show_playlist', playlist_id=playlist.id)}}">{{playlist.name}}</a><br>
+                {% endif %}
+            {% endfor %}
         
-    </li>
-    {% endfor %}
-
-</ul>
+        </table>
+    </div>
+</div>
 
 
 {% endblock %}

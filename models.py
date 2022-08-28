@@ -190,9 +190,13 @@ class User(db.Model):
             'id': self.id,
             'username': self.username,
             'first_name': self.first_name,
-            'last_name': self.first_name,
-            'profile_pic': self.profile_pic
+            'last_name': self.last_name,
+            'profile_pic': self.profile_pic,
         }
+
+        if self.instrument:
+            obj['instrument_name'] = self.instrument.name
+            obj['instrument_icon'] = self.instrument.icon
 
         return json.dumps(obj)
 

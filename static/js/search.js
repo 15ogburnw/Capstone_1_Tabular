@@ -87,9 +87,9 @@ $(document).ready(function () {
 
   // Get HTML elements to display for each song
   function getSongHTML(song, isLiked) {
-    const $newLI = $("<li>");
-    const $tabLink = $("<a>");
-    const $addToPlaylist = getModalBtn(song);
+    // const $newLI = $("<li>");
+    // const $tabLink = $("<a>");
+    // const $addToPlaylist = getModalBtn(song);
 
     // object with song info to store in HTML
     const songInfo = {
@@ -99,29 +99,119 @@ $(document).ready(function () {
       tab_url: `https://www.songsterr.com/a/wa/song?id=${song.id}`,
     };
 
-    $tabLink.attr("href", songInfo.tab_url);
-    $tabLink.append(`${song.title} by ${song.artist.name}`);
-    $newLI.append($tabLink);
+    // $tabLink.attr("href", songInfo.tab_url);
+    // $tabLink.append(`${song.title} by ${song.artist.name}`);
+    // $newLI.append($tabLink);
+
+    const $song = $("<div>").addClass("row d-flex align-items-center");
+
+    const html = $("<div>")
+      .addClass("list-group-item rounded ml-3")
+      .attr("style", "background-color:transparent")
+      .append($song);
+
+    const $dropdown = $("<div>")
+      .addClass("btn-group dropleft mr-4")
+      .append(
+        $("<a>")
+          .attr({
+            class: "ml-3",
+            type: "button",
+            "data-toggle": "dropdown",
+            "aria-haspopup": "true",
+            "aria-expanded": "false",
+          })
+          .append($("<i>").addClass("fa-solid fa-bars"))
+      )
+      .append(
+        $("<div>")
+          .addClass("dropdown-menu")
+          .append(
+            $("<a>")
+              .attr({
+                class: "dropdown-item",
+                type: "button",
+                "data-song-info": JSON.stringify(songInfo),
+                "data-toggle": "modal",
+                "data-target": "#addToPlaylist",
+              })
+              .append("Add Song to Playlist")
+          )
+      );
+
+    const $titleAndArtist = $("<div>")
+      .addClass("col")
+      .append(
+        $("<p>")
+          .addClass("my-0")
+          .attr("style", "font-size:18px;")
+          .append(
+            $("<a>")
+              .addClass("text-info")
+              .attr("href", `https://www.songsterr.com/a/wa/song?id=${song.id}`)
+              .append($("<b>").append(song.title))
+          )
+      )
+      .append(
+        $("<p>")
+          .addClass("my-0")
+          .append($("<em>").append(`by ${song.artist.name}`))
+      );
+
+    const $liked = $("<a>")
+      .attr({
+        class: "mr-2",
+        href: "#",
+        style: "font-size:18px;",
+      })
+      .append(
+        $("<i>").attr({
+          class: "fa-solid like fa-heart",
+          "data-is-liked": "true",
+          "data-song-info": JSON.stringify(songInfo),
+          style: "color:red;cursor:pointer;",
+        })
+      );
+
+    const $unliked = $("<a>")
+      .attr({
+        class: "mr-2",
+        href: "#",
+        style: "font-size:18px;",
+      })
+      .append(
+        $("<i>").attr({
+          class: "fa-regular like fa-heart",
+          "data-is-liked": "false",
+          "data-song-info": JSON.stringify(songInfo),
+          style: "color:red;cursor:pointer;",
+        })
+      );
 
     // If song is liked, include an 'Unlike' button; if song is not liked, include a 'Like' button
-    if (!isLiked) {
-      const $like = $("<a href='#'>").append("Like");
-      $like
-        .attr("data-song-info", JSON.stringify(songInfo))
-        .attr("data-is-liked", false)
-        .addClass("like");
-      $newLI.append("<br>").append($like);
-    } else {
-      const $unlike = $("<a href='#'>").append("Unlike");
-      $unlike
-        .attr("data-song-info", JSON.stringify(songInfo))
-        .attr("data-is-liked", true)
-        .addClass("like");
-      $newLI.append("<br>").append($unlike);
-    }
+    if (isLiked) {
+      $song
+        .append($titleAndArtist)
+        .append(
+          $("<div>")
+            .addClass("col d-flex justify-content-end")
+            .append($liked)
+            .append($dropdown)
+        );
 
-    const html = $newLI.append($addToPlaylist);
-    return html;
+      return html;
+    } else {
+      $song
+        .append($titleAndArtist)
+        .append(
+          $("<div>")
+            .addClass("col d-flex justify-content-end")
+            .append($unliked)
+            .append($dropdown)
+        );
+
+      return html;
+    }
   }
 
   // Get all liked songs from the database
@@ -137,19 +227,47 @@ $(document).ready(function () {
   async function toggleLike(e) {
     e.preventDefault();
     const songInfo = $(this).attr("data-song-info");
-
     const isLiked = $(this).attr("data-is-liked");
+    const $liked = $("<a>")
+      .attr({
+        class: "mr-2",
+        href: "#",
+        style: "font-size:18px;",
+      })
+      .append(
+        $("<i>").attr({
+          class: "fa-solid like fa-heart",
+          "data-is-liked": "true",
+          "data-song-info": JSON.stringify(songInfo),
+          style: "color:red;cursor:pointer;",
+        })
+      );
+
+    const $unliked = $("<a>")
+      .attr({
+        class: "mr-2",
+        href: "#",
+        style: "font-size:18px;",
+      })
+      .append(
+        $("<i>").attr({
+          class: "fa-regular like fa-heart",
+          "data-is-liked": "false",
+          "data-song-info": JSON.stringify(songInfo),
+          style: "color:red;cursor:pointer;",
+        })
+      );
 
     if (isLiked === "false") {
       const resp = await axios.post(`${BASE_URL}/users/likes`, {
         json: songInfo,
       });
-      $(this).empty().append("Unlike").attr("data-is-liked", true);
+      $(this).parent().replaceWith($liked);
     } else {
       const resp = await axios.post(`${BASE_URL}/users/likes`, {
         json: songInfo,
       });
-      $(this).empty().append("Like").attr("data-is-liked", false);
+      $(this).parent().replaceWith($unliked);
     }
   }
 
@@ -181,9 +299,52 @@ $(document).ready(function () {
   }
 
   function getUserHTML(user) {
-    const $userLink = $(
-      `<a href="/users/${user.id}/profile">@${user.username}</a>`
+    const $userLink = $("<a>")
+      .attr("href", `${BASE_URL}/users/${user.id}/profile`)
+      .addClass("list-group-item ml-3 rounded list-group-item-action");
+
+    const $profilePic = $("<div>")
+      .addClass("col-2 d-flex align-items-center")
+      .append(
+        $("<img>")
+          .attr("src", `${user.profile_pic}`)
+          .addClass("shadow-sm border")
+          .attr("style", "width:50px;height:50px;border-radius:50px;")
+      );
+
+    const $nameAndUsername = $("<div>")
+      .addClass("col my-auto")
+      .append(
+        $("<h6>")
+          .addClass("text-info")
+          .append(`${user.first_name} ${user.last_name}`)
+      )
+      .append($("<p>").append(`@${user.username}`));
+
+    const $instrument = $("<div>").addClass(
+      "col d-flex justify-content-start align-items-center"
     );
-    return $("<li>").append($userLink);
+    if (user.instrument_name && user.instrument_icon) {
+      $instrument.append(
+        $("<p>")
+          .append(
+            $("<span>")
+              .addClass("iconify mr-2")
+              .attr("data-icon", user.instrument_icon)
+              .attr("data-width", "30")
+              .attr("data-height", "30")
+          )
+          .append($("<span>").append(`${user.instrument_name}`))
+      );
+    }
+
+    const html = $userLink.append(
+      $('<div class="row"></div>')
+        .append($profilePic)
+        .append($nameAndUsername)
+        .append($instrument)
+    );
+
+    return html;
   }
 });

@@ -5,55 +5,62 @@
 {% block search %}active{% endblock %}
 
 
-{% block panel_title %} <p class="navbar-brand">Search</p> {% endblock %}
+{% block panel_title %}SEARCH{% endblock %}
 
 {% block panel_content %}
 
-<div class="row mb-3">
-    <div class="col-lg-8">
-        <div class="nav-tabs-navigation">
-            
-            <div class="nav-tabs-wrapper">
-                
-                <ul class="nav nav-tabs" data-tabs="tabs">
-                    <li class="nav-item">
-                        <a class="nav-link disabled" href="#">Search By:</a>
-                    </li>
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-lg-8">
+                <div class="nav-tabs-navigation">
                     
-                    <li class="nav-item">
-                        <a class="nav-link active search" href="#" data-search="songs" data-toggle="tab">Song</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link search" href="#" data-search = 'users' data-toggle="tab">User</a>
-                    </li>
-                </ul>
-            </div>
-        </div>    
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-lg-8">
-        <form id="search-form">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Search Songs by Artist or Song Title" name="search-input" id="search-input">
-                <div class="input-group-append">
-                    <div class="input-group-text text-light bg-secondary pl-3" id="search-button" style="cursor:pointer;">
-                        <i class="nc-icon nc-zoom-split"></i>
+                    <div class="nav-tabs-wrapper">
+                        
+                        <ul class="nav nav-tabs" data-tabs="tabs">
+                            <li class="nav-item">
+                                <a class="nav-link disabled" href="#"><b>Search By:</b></a>
+                            </li>
+                            
+                            <li class="nav-item">
+                                <a class="nav-link active search" href="#" data-search="songs" data-toggle="tab"><b>Song</b></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link search" href="#" data-search = 'users' data-toggle="tab"><b>User</b></a>
+                            </li>
+                        </ul>
                     </div>
-                </div>
+                </div>    
             </div>
-        </form>    
+        </div>
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <form id="search-form">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Search Songs by Artist or Song Title" name="search-input" id="search-input">
+                        <div class="input-group-append">
+                            <div class="input-group-text text-light bg-secondary pl-3" id="search-button" style="cursor:pointer;">
+                                <i class="nc-icon nc-zoom-split"></i>
+                            </div>
+                        </div>
+                    </div>
+                </form>    
+            </div>
+        </div>
+        
+        <div class="row my-2">
+        
+            <div id="results-list" class="list-group col-lg-10 col-xl-8">
+        
+            </div>
+        
+        </div>
     </div>
 </div>
 
-<div class="row">
-    <ul id="results-list">
 
-    </ul>
-</div>
-
-{{song_modal(playlists=user.playlists)}}
+{{song_modal(playlists=curr_user.playlists)}}
 
 {% endblock %}
 

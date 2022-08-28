@@ -1,8 +1,8 @@
 from models import db, User, Instrument, Playlist, PlaylistUser, Song, PlaylistSong
 from app import app
 
-db.drop_all()
-db.create_all()
+# db.drop_all()
+# db.create_all()
 
 # User.query.delete()
 

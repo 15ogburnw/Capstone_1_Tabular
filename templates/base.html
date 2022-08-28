@@ -32,9 +32,9 @@ Coded by www.creative-tim.com
   <link href="/static/paper-dashboard-master/assets/css/paper-dashboard.css?v=2.0.1" rel="stylesheet" />
 </head>
 
-
+{% set curr_user = g.user %}
 <body>
-  {% set curr_user = g.user %}
+  
 
   {% block content %}
 
@@ -92,21 +92,32 @@ Coded by www.creative-tim.com
   {% macro render_message(message) -%}
 
   {% if message.category == 'fr' %}
-  <div>
-    <p>
-      <a href="{{url_for('user_profile', user_id=message.author.id)}}">{{message.author.username}}</a> 
-      has requested to be your friend
-    </p>
-    <button class="btn btn-success accept-friend" data-user-id="{{message.author_id}}">Accept</button>
-    <button class="btn btn-danger deny-friend" data-user-id="{{message.author_id}}">Deny</button>
-  </div>
 
-  {% elif message.category == 'dm' %}
+  <div class="notification-shell">
+    <div class="list-group-item rounded">
+      <div class=" row d-flex align-items-center">
+        <div class="col-7">
+          <p style="font-size: 16px;" class="my-0">
+            <a href="{{url_for('user_profile', user_id=message.author.id)}}">@{{message.author.username}}</a> 
+            has requested to be your friend
+          </p>
+        </div>
+        <div class="col d-flex justify-content-end">
+          <button class="btn btn-success accept-friend" data-user-id="{{message.author_id}}">Accept</button>
+          <button class="btn btn-danger deny-friend ml-2" data-user-id="{{message.author_id}}">Deny</button>
+        </div>
+      </div>
+  
+    </div>  
+  </div>
+  
+
+  <!-- {% elif message.category == 'dm' %}
   <p>
     Message from <a href="{{url_for('user_profile', user_id=message.author.id)}}">{{message.author.username}}</a>:
   </p>
   <p><em>{{message.content}}</em></p>
-  {% endif %}
+  {% endif %} -->
 
   {%- endmacro %}
 
@@ -114,7 +125,35 @@ Coded by www.creative-tim.com
 
   {% macro render_friend(friend) -%}
 
-  <a href="{{url_for('user_profile', user_id=friend.id)}}">@{{friend.username}}</a>
+  <a href="{{url_for('user_profile', user_id=friend.id)}}" class="list-group-item rounded list-group-item-action">
+
+    <div class="row">
+      <div class="col-2 d-flex align-items-center">
+        <img src="{{friend.profile_pic}}" class="shadow-sm border" style="width: 50px; height:50px; border-radius:25px;">
+      </div>
+      
+      <div class="col my-auto">     
+        <h6 class="text-info">{{friend.full_name}}</h6>
+        <p>@{{friend.username}}</p>
+      </div>
+
+      <div class="col d-flex justify-content-start align-items-center">
+        {% if friend.instrument %}
+        <p>
+          <span class="iconify mr-2" data-icon="{{friend.instrument.icon}}" data-width="30" data-height="30"></span>
+          <span>{{friend.instrument.name}}</span>          
+        </p>
+        {% endif %}
+      </div>
+
+
+      
+    </div>
+    
+
+ 
+  
+  </a>
 
   {%- endmacro %}
 

@@ -14,19 +14,47 @@ $(document).ready(function () {
   async function toggleLikeSong(e) {
     e.preventDefault();
 
-    const songInfo = $(this).attr("data-song-info");
-    const isLiked = $(this).attr("data-is-liked");
+    let songInfo = $(this).attr("data-song-info");
+    let isLiked = $(this).attr("data-is-liked");
+
+    const $likedIcon = $("<a>")
+      .attr("href", "#")
+      .attr("style", "font-size: 18px;")
+      .addClass("mr-2")
+      .append(
+        $("<i>")
+          .addClass("fa-solid like fa-heart")
+          .attr("data-is-liked", "true")
+          .attr("data-song-info", songInfo)
+          .attr("style", "color:red;cursor:pointer;")
+      );
+
+    const $unlikedIcon = $("<a>")
+      .attr("href", "#")
+      .attr("style", "font-size: 18px;")
+      .addClass("mr-2")
+      .append(
+        $("<i>")
+          .addClass("fa-regular like fa-heart")
+          .attr("data-is-liked", "false")
+          .attr("data-song-info", songInfo)
+          .attr("style", "color:red;cursor:pointer;")
+      );
 
     if (isLiked === "false") {
       const resp = await axios.post(`${BASE_URL}/users/likes`, {
         json: songInfo,
       });
-      $(this).empty().append("Unlike").attr("data-is-liked", true);
+      const parent = $(this).parent().parent();
+      $(this).parent().remove();
+      parent.prepend($likedIcon);
     } else {
       const resp = await axios.post(`${BASE_URL}/users/likes`, {
         json: songInfo,
       });
-      $(this).empty().append("Like").attr("data-is-liked", false);
+      const parent = $(this).parent().parent();
+      $(this).parent().remove();
+      parent.prepend($unlikedIcon);
     }
   }
 
@@ -37,7 +65,17 @@ $(document).ready(function () {
     const resp = await axios.post(`${BASE_URL}/users/likes`, {
       json: songInfo,
     });
-    $(this).closest("li").remove();
+    $(this).closest("tr").remove();
+
+    if ($likedSongs.find("tbody").children().length < 1) {
+      $("<h5>")
+        .append("You have no liked songs!")
+        .append(
+          $("<a>").attr("href", `${BASE_URL}/search`).append("Search for songs")
+        )
+        .insertBefore($("#liked-songs"));
+      $("table").hide();
+    }
   }
 
   $(".main-panel").on("click", "#playlist-liked", toggleLikePlaylist);

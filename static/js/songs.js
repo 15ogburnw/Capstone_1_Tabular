@@ -94,13 +94,14 @@ $(document).ready(function () {
     );
 
     // Remove the song from the DOM
-    $(this).closest("li").remove();
+    $(this).closest("tr").remove();
 
     // If there are no songs remaining on the DOM, append a message above the songs list
-    if ($("#songs-list").children().length < 1) {
+    if ($("#songs-list").find("tbody").children().length < 1) {
       $("<h5>There are no songs in this playlist!</h5>").insertBefore(
         $("#songs-list")
       );
+      $("table").hide();
     }
   });
 

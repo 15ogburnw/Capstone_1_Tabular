@@ -203,14 +203,12 @@ def user_profile(user_id):
 
         return redirect('/')
 
-    # If the user ID is 0, display the user page for currently logged in user. Else, show
+    # If the user ID matches the current user's ID, display the user page for currently logged in user. Else, show
     # page of user matching user ID
     if user_id == g.user.id:
         return render_template('users/current/my_profile.html', user=g.user)
 
     user = User.query.get(user_id)
-
-    curr_user = g.user
 
     return render_template('users/profile.html', user=user)
 
@@ -433,7 +431,7 @@ def remove_friend(user_id):
     g.user.remove_friend(user_id)
     db.session.commit()
 
-    return redirect(url_for('user_friends', user_id=g.user.id))
+    return redirect(request.referrer)
 
 
 # *************

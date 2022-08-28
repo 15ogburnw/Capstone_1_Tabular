@@ -6,35 +6,42 @@
 {% block messages %}active{% endblock %}
 
 
-{% block panel_title %} <p class="navbar-brand">Messages</p> {% endblock %}
+{% block panel_title %}MESSAGES{% endblock %}
 
 
 {% block panel_content %}
 
-<h6>Notifications</h6>
-<hr>
-<div id="notifications">
-    {% for msg in messages %}
-
-    {% if msg.category == 'fr' %}
-    {{render_message(msg)}}
-    {% endif %}
-
-    {% endfor %}
+<div class="card">
+    <div class="card-body">
+        <h5><small><b>NOTIFICATIONS</b></small></h5>
+        <hr>
+        <div id="notifications" class="list-group col-lg-10 col-xl-8 my-4">
+            {% if notifications %}
+                {% for msg in notifications %}
+                {{render_message(msg)}}
+                {% endfor %}
+        
+            {% else %}
+            <h5>You do not have any notifications!</h5>
+            {% endif %}
+        </div>
+        
+        <!-- *************** -->
+        <!-- To implement later -->
+        <!-- *************** -->
+        <!-- <h6>Messages</h6>
+        <hr>
+        {% for msg in messages %}
+        
+        {% if msg.category == 'dm' %}
+        {{render_message(msg)}}
+        {% endif %}
+        
+        {% endfor %} -->
+    </div>
 </div>
 
-<!-- *************** -->
-<!-- To implement later -->
-<!-- *************** -->
-<!-- <h6>Messages</h6>
-<hr>
-{% for msg in messages %}
 
-{% if msg.category == 'dm' %}
-{{render_message(msg)}}
-{% endif %}
-
-{% endfor %} -->
 
 {% endblock %}
 

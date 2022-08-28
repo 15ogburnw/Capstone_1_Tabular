@@ -4,50 +4,83 @@
 {% block playlists %}active{% endblock %}
 
 
-{% block panel_title %} <p class="navbar-brand">My Playlists</p> {% endblock %}
+{% block panel_title %}PLAYLISTS{% endblock %}
 
 {% block panel_content %}
 
-
-<h3 class="mb-0">Liked Playlists</h3>
-<hr>
-<ul class="my-playlists-list mb-5 mt-3">
-
-    {% for playlist in user.playlists | sort(attribute='user_id') %}
-        {% if playlist.creator.id != user.id %}
-        <li>
-            <h5 class="mb-0"><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}">{{playlist.name}}</a></h5>
-            <em>Created by @<a href="{{url_for('user_profile',user_id=playlist.creator.id)}}" style="color:black">{{playlist.creator.username}}</a></em>
-        </li>
-        {% endif %}
-    {% endfor %}
-
-</ul>
+<div class="card">
+    <div class="card-body">
+        <table class="my-playlists-list mb-5 mt-3 table table-striped table-bordered">
+            
+            <thead>
+                <tr>
+                    <td style="font-size: 24px;font-weight: bold;">Liked Playlists</td>
+                </tr>
+            </thead>
 
 
-<h3 class="mb-0">My Playlists</h3>
-<hr>
-<ul class="my-playlists-list mb-5 mt-3">
+            {% for playlist in user.playlists | sort(attribute='user_id') %}
+                {% if playlist.creator.id != user.id %}
+                <tr>
+                    <td>
+                        <span class="my-0 ml-3 h5"><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}" class="text-info"><b>{{playlist.name}}</b></a></span>
+                        <span class="my-0">(<em>{{playlist.songs | length}} Songs</em>)</span>
+                        <p class="my-0 ml-3"><em>Created by @<a href="{{url_for('user_profile',user_id=playlist.creator.id)}}" style="color:black">{{playlist.creator.username}}</a></em></p>
+                    </td>
+                </tr>
 
-    <li><h5><a href="{{url_for('show_playlist', playlist_id=0)}}">Liked Songs</a></h5></li>
+                {% endif %}
+            {% endfor %}
+        
+        </table>
 
-    {% for playlist in user.playlists %}
-        {% if playlist.creator.id == user.id %}
-        <li><h5><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}">{{playlist.name}}</a></h5></li>
-        {% endif %}
-    {% endfor %}
+        <table class="my-playlists-list mb-5 mt-3 table table-bordered table-striped">
+            
+            <thead>
+                <tr>
+                    <td style="font-size: 24px;font-weight: bold;">My Playlists</td>
+                </tr>
+            </thead>
 
-</ul>
-<hr>
+            <tbody>
+                <tr>
+                    <td>
+                        <span class="my-0 ml-3 h5">
+                            <a href="{{url_for('show_playlist', playlist_id=0)}}" class="text-info"><b>Liked Songs</b></a>
+                        </span>
+                        <span class="my-0">(<em>{{user.likes | length}} Songs</em>)</span>
+                    </td>
+                </tr>
+        
+                {% for playlist in user.playlists %}
+                    {% if playlist.creator.id == user.id %}
+                    <tr>
+                        <td>
+                            <span class="my-0 h5 ml-3">
+                                <a href="{{url_for('show_playlist', playlist_id=playlist.id)}}" class="text-info"><b>{{playlist.name}}</b></a>
+                            </span>
+                            <span class="my-0">(<em>{{playlist.songs | length}} Songs</em>)</span>
+                        </td>
+                    </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
 
-<form id="new-playlist" action="{{url_for('user_playlists', user_id=user.id)}}" method="post">
-    <div class="form-group">
-        <label for="playlist-name" class="form-label">Playlist Name</label>
-        <input type="text" name="playlist-name" id="playlist-name" class="form-control" required>
+        
+        </table>
+        <hr>
+        
+        <form id="new-playlist" action="{{url_for('user_playlists', user_id=user.id)}}" method="post">
+            <div class="form-group">
+                <input type="text" name="playlist-name" id="playlist-name" class="form-control" required placeholder="Playlist Name">
+            </div>
+            
+            <button class = "btn btn-primary" id="create-playlist" >Create a New Playlist</button>
+        </form>
     </div>
-    
-    <button class = "btn btn-primary" id="create-playlist">Create a New Playlist</button>
-</form>
+
+</div>
+
 
 
 
