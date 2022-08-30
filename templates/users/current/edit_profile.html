@@ -18,17 +18,17 @@
         <div class="card-body">
           <div class="author">
             <img class="avatar border-gray" src="{{user.profile_pic}}" alt="profile photo">
-            <h2 class="title mb-0">{{user.full_name}}</h2>
+            <h2 class="title mb-0">{{user.full_name | e}}</h2>
             <h5 class="mt-0">
-              <a href="{{url_for('user_profile', user_id=user.id)}}">@{{user.username}}</a> 
+              <a href="{{url_for('user_profile', user_id=user.id)}}">@{{user.username | e}}</a> 
             </h5>
 
             <p>
               <span class="iconify mr-2" data-icon="{{user.instrument.icon}}" data-width="30" data-height="30"></span>
-              <span>{{user.instrument.name}}</span>
+              <span>{{user.instrument.name | e}}</span>
             </p>
             {% if user.bio %}
-            <p class="text-center description font-weight-normal">{{user.bio}}</p>
+            <p class="text-center description font-weight-normal">{{user.bio | e}}</p>
             {% endif %}
           </div>
           
@@ -65,7 +65,7 @@
 
             {% for field in form if field.widget.input_type != 'hidden' %}
               {% for error in field.errors %}
-                <span class="text-danger">{{ error }}</span>
+                <span class="text-danger">{{ error | e}}</span>
               {% endfor %}
 
               

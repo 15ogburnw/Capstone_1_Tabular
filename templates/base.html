@@ -30,6 +30,7 @@ Coded by www.creative-tim.com
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A==" crossorigin="anonymous" referrerpolicy="no-referrer" />  <!-- CSS Files -->
   <link href="/static/paper-dashboard-master/assets/css/bootstrap.min.css" rel="stylesheet" />
   <link href="/static/paper-dashboard-master/assets/css/paper-dashboard.css?v=2.0.1" rel="stylesheet" />
+  <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
 </head>
 
 {% set curr_user = g.user %}
@@ -59,7 +60,7 @@ Coded by www.creative-tim.com
               <div class="form-check">
                 <label class="form-check-label">
                     <input class="form-check-input" type="checkbox" value="{{playlist.serialize()}}" name="playlist-box">
-                    {{playlist.name}}
+                    {{playlist.name | e}}
                     <span class="form-check-sign">
                         <span class="check"></span>
                     </span>
@@ -98,7 +99,7 @@ Coded by www.creative-tim.com
       <div class=" row d-flex align-items-center">
         <div class="col-7">
           <p style="font-size: 16px;" class="my-0">
-            <a href="{{url_for('user_profile', user_id=message.author.id)}}">@{{message.author.username}}</a> 
+            <a href="{{url_for('user_profile', user_id=message.author.id)}}">@{{message.author.username | e}}</a> 
             has requested to be your friend
           </p>
         </div>
@@ -133,15 +134,15 @@ Coded by www.creative-tim.com
       </div>
       
       <div class="col my-auto">     
-        <h6 class="text-info">{{friend.full_name}}</h6>
-        <p>@{{friend.username}}</p>
+        <h6 class="text-info">{{friend.full_name | e}}</h6>
+        <p>@{{friend.username | e}}</p>
       </div>
 
       <div class="col d-flex justify-content-start align-items-center">
         {% if friend.instrument %}
         <p>
           <span class="iconify mr-2" data-icon="{{friend.instrument.icon}}" data-width="30" data-height="30"></span>
-          <span>{{friend.instrument.name}}</span>          
+          <span>{{friend.instrument.name | e}}</span>          
         </p>
         {% endif %}
       </div>

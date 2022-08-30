@@ -39,8 +39,8 @@
                         <td>
                             <div class="row">
                                 <div class="col">
-                                    <p class="my-0" style="font-size: 18px;"><a href="{{song.tab_url}}" class="text-info"><b>{{song.title}}</b></a></p>
-                                    <p class="my-0"><em>by {{song.artist}}</em></p>  
+                                    <p class="my-0" style="font-size: 18px;"><a href="{{song.tab_url}}" class="text-info"><b>{{song.title | e}}</b></a></p>
+                                    <p class="my-0"><em>by {{song.artist | e}}</em></p>  
                                 </div>
             
                                 <div class="col d-flex justify-content-end align-items-center">

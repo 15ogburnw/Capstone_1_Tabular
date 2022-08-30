@@ -1,7 +1,7 @@
 {% extends 'home.html' %}
 {% set user_playlists = user.playlists | selectattr("user_id", "equalto", user.id) | list %}
 
-{% block panel_title %}@{{user.username}}'S PROFILE{% endblock %}
+{% block panel_title %}@{{user.username | e}}'S PROFILE{% endblock %}
 
 
 {% block panel_content %}
@@ -16,9 +16,9 @@
           <div class="author">
             
             <img class="avatar border-gray" src="{{user.profile_pic}}" alt="profile photo">
-            <h2 class="title mb-0">{{user.full_name}}</h2>
+            <h2 class="title mb-0">{{user.full_name | e}}</h2>
             <h5 class="mt-0">
-              @{{user.username}}
+              @{{user.username | e}}
               {% if user.check_if_friends(curr_user.id) %}
               <br>
               <span class="badge badge-success mt-2">Friends <i class="fa-solid fa-check"></i></span>
@@ -27,10 +27,10 @@
 
             <p>
               <span class="iconify mr-2" data-icon="{{user.instrument.icon}}" data-width="30" data-height="30"></span>
-              <span>{{user.instrument.name}}</span>
+              <span>{{user.instrument.name | e}}</span>
             </p>
             {% if user.bio %}
-            <p class="text-center description font-weight-normal">{{user.bio}}</p>
+            <p class="text-center description font-weight-normal">{{user.bio | e}}</p>
             {% endif %}
           </div>
           

@@ -23,9 +23,9 @@
                 {% if playlist.creator.id != user.id %}
                 <tr>
                     <td>
-                        <span class="my-0 ml-3 h5"><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}" class="text-info"><b>{{playlist.name}}</b></a></span>
+                        <span class="my-0 ml-3 h5"><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}" class="text-info"><b>{{playlist.name | e}}</b></a></span>
                         <span class="my-0">(<em>{{playlist.songs | length}} Songs</em>)</span>
-                        <p class="my-0 ml-3"><em>Created by @<a href="{{url_for('user_profile',user_id=playlist.creator.id)}}" style="color:black">{{playlist.creator.username}}</a></em></p>
+                        <p class="my-0 ml-3"><em>Created by @<a href="{{url_for('user_profile',user_id=playlist.creator.id)}}" style="color:black">{{playlist.creator.username | e}}</a></em></p>
                     </td>
                 </tr>
 
@@ -57,7 +57,7 @@
                     <tr>
                         <td>
                             <span class="my-0 h5 ml-3">
-                                <a href="{{url_for('show_playlist', playlist_id=playlist.id)}}" class="text-info"><b>{{playlist.name}}</b></a>
+                                <a href="{{url_for('show_playlist', playlist_id=playlist.id)}}" class="text-info"><b>{{playlist.name | e}}</b></a>
                             </span>
                             <span class="my-0">(<em>{{playlist.songs | length}} Songs</em>)</span>
                         </td>
@@ -71,6 +71,9 @@
         <hr>
         
         <form id="new-playlist" action="{{url_for('user_playlists', user_id=user.id)}}" method="post">
+            {% if msg %}
+            <div class="alert alert-danger">{{msg | e}}</div>
+            {% endif %}
             <div class="form-group">
                 <input type="text" name="playlist-name" id="playlist-name" class="form-control" required placeholder="Playlist Name">
             </div>

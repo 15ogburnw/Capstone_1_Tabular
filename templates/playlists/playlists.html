@@ -2,7 +2,7 @@
 
 
 
-{% block panel_title %}<a href="{{url_for('user_profile',user_id=user.id)}}" style="color:black;">@{{user.username}}</a>'s PLAYLISTS {% endblock %}
+{% block panel_title %}<a href="{{url_for('user_profile',user_id=user.id)}}" style="color:black;">@{{user.username | e}}</a>'s PLAYLISTS {% endblock %}
 
 {% block panel_content %}
 

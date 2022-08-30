@@ -104,7 +104,7 @@ class User(db.Model):
     last_name = db.Column(db.String(30), nullable=True)
 
     profile_pic = db.Column(
-        db.Text, nullable=True, default='https://www.kindpng.com/picc/m/451-4517876_default-profile-hd-png-download.png')
+        db.Text, nullable=True, default='https://media.istockphoto.com/vectors/vector-guitar-logo-icon-vector-id1197682363?k=20&m=1197682363&s=170667a&w=0&h=x0Rfh6occzSzKRjar0zQqQhR15GhM_4UrSVwHgXhXto=')
 
     cover_pic = db.Column(
         db.Text, nullable=True, default='https://facebooktimelinephotos.files.wordpress.com/2012/01/grass-landscape.png')
