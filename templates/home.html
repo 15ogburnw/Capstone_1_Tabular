@@ -100,7 +100,7 @@
           <div class="collapse navbar-collapse justify-content-end">
             
             <a class="navbar-link mr-2" href="{{url_for('user_profile', user_id=curr_user.id)}}">
-              <img src="{{curr_user.profile_pic}}" style="width:30px; height:30px; border-radius: 15px; border: solid gray 1px;" loading="lazy">
+              <img src="{{url_for('static',filename=curr_user.profile_pic)}}" style="width:30px; height:30px; border-radius: 15px; border: solid gray 1px;" loading="lazy">
             </a>
             <a class="navbar-link mr-4" href="{{url_for('user_profile', user_id=curr_user.id)}}">@{{curr_user.username | e}}</a>
             <a class="navbar-link" href="/logout">Logout</a>

@@ -104,10 +104,10 @@ class User(db.Model):
     last_name = db.Column(db.String(30), nullable=True)
 
     profile_pic = db.Column(
-        db.Text, nullable=True, default='https://media.istockphoto.com/vectors/vector-guitar-logo-icon-vector-id1197682363?k=20&m=1197682363&s=170667a&w=0&h=x0Rfh6occzSzKRjar0zQqQhR15GhM_4UrSVwHgXhXto=')
+        db.Text, nullable=True, default='images/default_profile_pic.png')
 
     cover_pic = db.Column(
-        db.Text, nullable=True, default='https://facebooktimelinephotos.files.wordpress.com/2012/01/grass-landscape.png')
+        db.Text, nullable=True, default='images/default_cover_pic.jpg')
 
     instrument_id = db.Column(db.Integer, db.ForeignKey(
         'instruments.id', ondelete='SET NULL'), nullable=True, default=None)

@@ -12,12 +12,12 @@
 <div class="row">
     <div class="col-xl-5 col-lg-8 col-md-10">
       <div class="card card-user">
-        <div class="image">
-          <img style="height:100%; width:100%; border-radius: 10px 10px 0px 0px;" src="{{user.cover_pic}}" alt="cover photo">
+        <div class="image" style="height:200px;">
+          <img style="height:100%; width:100%; border-radius: 10px 10px 0px 0px;" src="{{url_for('static',filename=user.cover_pic)}}" alt="cover photo">
         </div>
         <div class="card-body">
           <div class="author">
-            <img class="avatar border-gray" src="{{user.profile_pic}}" alt="profile photo">
+            <img class="avatar border-gray" src="{{url_for('static',filename=user.profile_pic)}}" alt="profile photo">
             <h2 class="title mb-0">{{user.full_name | e}}</h2>
             <h5 class="mt-0">
               <a href="{{url_for('user_profile', user_id=user.id)}}">@{{user.username | e}}</a> 
@@ -50,6 +50,11 @@
               </div> -->
             </div>
           </div>
+          <div class="row text-center justify-content-center my-3">
+            <form action="{{url_for('delete_profile')}}" method="post">
+                <button type="submit" class="btn btn-danger text-center">Delete Profile</button>
+            </form>
+          </div>  
         </div>
       </div>
     </div>
@@ -59,7 +64,7 @@
           <h5 class="card-title">Edit Profile</h5>
         </div>
         <div class="card-body">
-          <form role="form" class="text-start" action="{{url_for('edit_my_profile')}}" method="post">
+          <form role="form" class="text-start" action="{{url_for('edit_my_profile')}}" method="post" enctype='multipart/form-data'>
 
             {{ form.hidden_tag() }}
 
@@ -69,7 +74,7 @@
               {% endfor %}
 
               
-              <div class="form-group my-3 ">
+              <div class="my-3 ">
                 {{ field.label(class_='form-label') }}
                 {{ field(class_="form-control") }}
               </div>

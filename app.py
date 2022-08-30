@@ -10,12 +10,16 @@ from sqlalchemy.exc import IntegrityError
 import requests
 from json import loads
 from functools import wraps
+from secret import secret
+from werkzeug.utils import secure_filename
 
 
 app = Flask(__name__)
 
 
 CURR_USER_KEY = "curr_user"
+UPLOAD_FOLDER = 'static/images/users/'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'bmp', 'svg', 'ai'}
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = (
@@ -23,13 +27,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = (
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "it's a secret")
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secret)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = -1
 
 toolbar = DebugToolbarExtension(app)
 
 connect_db(app)
-
-CURR_USER_KEY = 'curr_user'
 
 
 @app.before_request
@@ -100,6 +104,24 @@ def add_song_if_new(**kwargs):
     song = Song(**kwargs)
     db.session.add(song)
     db.session.commit()
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def save_picture(pic):
+
+    filename = secure_filename(pic.filename)
+    user_folder = os.path.join(app.config['UPLOAD_FOLDER'], g.user.username)
+    if not os.path.exists(user_folder):
+        os.mkdir(user_folder)
+    if os.path.exists(os.path.join(user_folder, filename)):
+        os.remove(os.path.join(user_folder, filename))
+
+    pic.save(os.path.join(user_folder, filename))
+    return (os.path.join(user_folder, filename))[len('static/'):]
 
 
 @app.route('/')
@@ -253,8 +275,20 @@ def edit_my_profile():
 
                 if key == 'instrument_id' and value == 0:
                     g.user.instrument = None
+                elif key == 'profile_pic' or key == 'cover_pic':
+                    pass
                 else:
                     setattr(g.user, key, value)
+
+            if form.profile_pic.data and allowed_file(form.profile_pic.raw_data[0].filename):
+                pic = request.files[form.profile_pic.name]
+                filename = save_picture(pic=pic)
+                g.user.profile_pic = filename
+
+            if form.cover_pic.data and allowed_file(form.cover_pic.raw_data[0].filename):
+                pic = request.files[form.cover_pic.name]
+                filename = save_picture(pic=pic)
+                g.user.cover_pic = filename
 
         # error handling for duplicate username
         except IntegrityError:
@@ -268,6 +302,18 @@ def edit_my_profile():
 
     # If get request, render the form
     return render_template('users/current/edit_profile.html', user=g.user, form=form)
+
+
+@app.route('/users/profile/delete', methods=["POSt"])
+@login_required
+def delete_profile():
+
+    user = User.query.get_or_404(g.user.id)
+    db.session.delete(user)
+    db.session.commit()
+
+    flash('Your account has been successfully deleted!', 'success')
+    return redirect('/')
 
 
 @app.route('/users/likes', methods=['POST'])

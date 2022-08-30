@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, TextAreaField, SelectField
+from wtforms import StringField, PasswordField, TextAreaField, SelectField, FileField
 from wtforms.validators import InputRequired, Email, Length
 
 
@@ -28,9 +28,9 @@ class EditUserForm(FlaskForm):
     email = StringField('E-mail', validators=[InputRequired(
         message='This field is required!'), Email(message='Please enter a valid email address!')])
 
-    profile_pic = StringField('Profile Picture (URL)')
+    profile_pic = FileField('Profile Picture')
 
-    cover_pic = StringField('Cover Photo (URL)')
+    cover_pic = FileField('Cover Photo')
 
     instrument_id = SelectField('Instrument', coerce=int)
 
