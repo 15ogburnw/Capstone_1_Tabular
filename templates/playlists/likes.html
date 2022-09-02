@@ -11,8 +11,8 @@
 <div class="card">
     <div class="card-body">
         {% if user.likes | length < 1 %}
-        <h5>You have no liked songs!
-            <a href="{{url_for('search_page')}}">Search for songs</a>
+        <h5 class="ml-3 mt-4">You have no liked songs!
+            <a href="{{url_for('search_page')}}"> Search for songs</a>
         </h5>
         {% endif %}
         

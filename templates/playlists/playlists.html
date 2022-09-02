@@ -10,18 +10,22 @@
     <div class="card-body">
         <table class="playlists-list mb-4 mt-3 table table-striped table-bordered">
             
-            {% for playlist in user.playlists %}
-                {% if playlist.creator.id == user.id %}
-                <tr>
-                    <td>
-                        <span class="ml-3 my-0 h5"><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}" class=" text-info"><b>{{playlist.name}}</b></a></span>
-                        <span class="my-0">(<em>{{playlist.songs | length}} Songs</em>)</span>
-                    </td>
-                </tr>
+            {% if user.playlists | length > 0 %}
+                {% for playlist in user.playlists %}
+                    {% if playlist.creator.id == user.id %}
+                    <tr>
+                        <td>
+                            <span class="ml-3 my-0 h5"><a href="{{url_for('show_playlist', playlist_id=playlist.id)}}" class=" text-info"><b>{{playlist.name}}</b></a></span>
+                            <span class="my-0">(<em>{{playlist.songs | length}} Songs</em>)</span>
+                        </td>
+                    </tr>
 
-                {% endif %}
-            {% endfor %}
-        
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+            <h5 class="mt-4 ml-4">@{{user.username}} does not have any playlists!</h5>
+            {% endif %}
+
         </table>
     </div>
 </div>

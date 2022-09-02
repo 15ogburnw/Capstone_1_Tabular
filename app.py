@@ -130,7 +130,7 @@ def index():
     """Direct user to the welcome page if not logged in, and landing page if logged in."""
     if g.user:
 
-        return render_template('users/current/dashboard.html', user=g.user)
+        return render_template('dashboard.html', user=g.user)
 
     else:
         return render_template('welcome.html')

@@ -1,0 +1,83 @@
+{% extends 'home.html' %}
+
+
+{% block dashboard %}active{% endblock %}
+
+
+{% block panel_title %}DASHBOARD{% endblock %}
+
+{% block panel_content %}
+
+<div class="row">
+    <div class="col-xl-6">
+        <div class="card" style="height:600px;">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-2 text-center text-info border-right">
+                        <i class="nc-icon nc-note-03 my-0 mx-2 font-weight-bold" style="font-size:40px;"></i>
+                    </div>
+                    <div class="col">
+                        <h3 class="card-title d-inline my-0">Practice Your Music!</h3>
+                    </div>
+                </div>
+                <hr>
+            </div>
+            <div class="card-body">
+                <ul>
+
+                    <li>
+                        <a href="{{url_for('show_playlist',playlist_id=0)}}"><h4 class="text-info">Liked Songs</h4></a>
+                    </li>
+                    {% for playlist in user.playlists %}
+                    <li>
+                        <a href="{{url_for('show_playlist',playlist_id=playlist.id)}}"><h4 class="text-info">{{playlist.name}}</h4></a>
+                    </li>
+                    {% endfor %}
+
+                </ul>
+
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <div class="card" style="height:600px;">
+            <div class="card-header">
+                <div class="row">
+                    <div class="col-2 text-center text-success border-right">
+                        <i class="nc-icon nc-single-02 my-0 mx-2 font-weight-bold" style="font-size: 40px;"></i> 
+                    </div>
+                    <div class="col">
+                        <h3 class="card-title d-inline my-0">See What Your Friends Are Playing:</h3>
+                    </div>
+                    
+                </div>
+                <hr>
+            </div> 
+            <div class="card-body">
+
+                <ul>
+                    {% if user.friends | length > 0 %}
+                        {% for friend in user.friends %}
+                        <li>
+                            <a href="{{url_for('user_playlists',user_id=friend.id)}}"><h4 class="my-0 text-success">{{friend.full_name}}</h4></a>
+                            <p class="mt-0 mb-4">@{{friend.username}}</p>
+                        </li>
+                        {% endfor %}
+                    {% else %}
+                    <h4 class="text-success">Find some users to connect with! <a href="{{url_for('search_page')}}">Search Users</a></h4>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card p-2">
+        <div class="card-body d-flex align-items-center justify-content-center my-0">
+            <h3 class="my-0">Find Tabs for Your Favorite Songs: <a href="{{url_for('search_page')}}">Search Songsterr</a></h3>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
