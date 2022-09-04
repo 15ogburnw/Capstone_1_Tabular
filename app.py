@@ -1,13 +1,10 @@
 
-
-from hashlib import new
 import os
-from models import db, connect_db, User, Instrument, Playlist, Song, Like, PlaylistUser, Message, Friend
+from models import db, connect_db, User, Instrument, Playlist, Song, Like, PlaylistUser
 from forms import EditUserForm, UserLoginForm, NewUserForm
 from flask import Flask, render_template, redirect, request, flash, session, g, jsonify, url_for
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
-import requests
 from json import loads
 from functools import wraps
 from secret import secret
@@ -147,7 +144,7 @@ def register():
 
     If form not valid, present form.
 
-    If the there already is a user with that username: flash message
+    If there already is a user with that username: flash message
     and re-present form.
     """
 
@@ -222,13 +219,9 @@ def logout():
 
 
 @app.route('/search')
+@login_required
 def search_page():
     """Display search page."""
-
-    if not g.user:
-        flash('Access Unauthorized! Please Login', 'danger')
-
-        return redirect('/')
 
     return render_template('search.html', user=g.user)
 
@@ -304,7 +297,7 @@ def edit_my_profile():
     return render_template('users/current/edit_profile.html', user=g.user, form=form)
 
 
-@app.route('/users/profile/delete', methods=["POSt"])
+@app.route('/users/profile/delete', methods=["POST"])
 @login_required
 def delete_profile():
 
@@ -322,7 +315,9 @@ def toggle_like():
     """Add or remove a song from a user's liked songs"""
 
     # Get the song info and add the song to the database if it isn't in the database
+
     data = loads(request.json['json'])
+
     add_song_if_new(**data)
 
     # check if the song is in the user's likes
@@ -333,14 +328,14 @@ def toggle_like():
     if liked_song:
         db.session.delete(liked_song)
         db.session.commit()
-        return 'Song successfully removed from your liked songs!'
+        return redirect(request.referrer)
 
     # If it is not in the likes, add it
     else:
         new_like = Like(user_id=g.user.id, song_id=data['id'])
         db.session.add(new_like)
         db.session.commit()
-        return 'Song successfully added to your liked songs!'
+        return redirect(request.referrer)
 
 
 @app.route('/users/<int:user_id>/playlists', methods=['GET', 'POST'])
@@ -379,13 +374,21 @@ def user_playlists(user_id):
                 db.session.add(playlist_user)
                 db.session.commit()
 
+                flash('Playlist successfully created!', 'success')
                 return redirect(url_for('user_playlists', user_id=g.user.id))
 
+        else:
+            flash('You cannot create a playlist for another user!')
+            return redirect('/')
+
     if user_id == g.user.id:
-        # If user id is 0, direct to logged in user's playlists
         return render_template('users/current/my_playlists.html', user=g.user)
 
     user = User.query.get_or_404(user_id)
+
+    if user not in g.user.friends:
+        flash('You must be friends with a user to view their playlists!', 'danger')
+        return redirect('/')
 
     return render_template('playlists/playlists.html', user=user)
 
@@ -402,7 +405,7 @@ def send_friend_request(user_id):
 
     elif g.user.check_pending_request(other_user_id=user_id):
 
-        flash('You have already sent this user a friend request!')
+        flash('There is already a pending friend request!')
         return redirect(request.referrer)
 
     # Create a friend request message to user matching user ID
@@ -424,6 +427,7 @@ def accept_friend_request(user_id):
     g.user.accept_friend_request(user_id)
     db.session.commit()
 
+    flash('You have successfully accepted the friend request!')
     return redirect(request.referrer)
 
 
@@ -456,7 +460,6 @@ def remove_friend(user_id):
 
     if not g.user.check_if_friends(user_id):
 
-        flash('You are not friends!')
         return redirect(request.referrer)
 
     g.user.remove_friend(user_id)
