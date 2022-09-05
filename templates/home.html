@@ -92,18 +92,110 @@
     <div class="main-panel h-100">
       <!-- Navbar -->
       <nav class="navbar navbar-expand-lg navbar-absolute fixed-top navbar-transparent" >
-        <div class="container-fluid">
+        <div class="container-fluid" style="background-color:#F4F3EF;">
           <div class="navbar-wrapper">
-            <h4 class="my-0"><b>{% block panel_title %}{% endblock %}</b></h4>
+            <div class="container-fluid">
+                <div class="navbar-toggle">
+                  <button type="button" class="navbar-toggler sidebar-collapse-btn" data-hidden="true" data-toggle="collapse" data-target="#sidebar" aria-expanded="false" aria-label="Toggle sidebar">
+                    <span class="navbar-toggler-bar bar1"></span>
+                    <span class="navbar-toggler-bar bar2"></span>
+                    <span class="navbar-toggler-bar bar3"></span>
+                  </button>
+                </div>
+              <h4 class="my-0" id="panel-title"><b>{% block panel_title %}{% endblock %}</b></h4>
 
-          </div>
-          <div class="collapse navbar-collapse justify-content-end">
+              <div class="nav collapse navbar-collapse" id="sidebar">
+                <ul class="navbar-nav">
+          
+                  <li class="nav-item d-flex align-items-center">
+                    <div class="hide-container" hidden>
+                      <i class="nc-icon nc-bank" style="font-size: 20px;"></i>
+                      <a href="/" class="ml-2" style="font-size: 20px;">
+                        Dashboard
+                      </a>
+                    </div>
+
+                  </li>
+                  
+                  <li class="nav-item d-flex align-items-center">
+                    <div class="hide-container" hidden>
+                      <i class="nc-icon nc-zoom-split" style="font-size: 20px;"></i>
+                      <a href="{{url_for('search_page')}}" class="ml-2" style="font-size: 20px;">
+                        Search
+                      </a>
+                    </div>
+                  </li>
+                  
+                  <li class="nav-item d-flex align-items-center">
+                    <div class="hide-container" hidden>
+                      <i class="nc-icon nc-button-play" style="font-size: 20px;"></i>
+                      <a href="{{url_for('user_playlists',user_id=curr_user.id)}}"  class="ml-2" style="font-size: 20px;">
+                        Playlists
+                      </a>
+                    </div>
+                  </li>
+                  
+                  <li class="nav-item d-flex align-items-center">
+                    <div class="hide-container" hidden>
+                      <i class="nc-icon nc-satisfied" style="font-size: 20px;"></i>
+                      <a href="{{url_for('user_friends', user_id=curr_user.id)}}" class="ml-2" style="font-size: 20px;">
+                        Friends
+                      </a>
+                    </div>
+                  </li>
+                  
+                  <!-- Revisit Later -->
+                  <!-- <li class="nav-item">
+                    <a href="">
+                      <i class="nc-icon nc-note-03"></i>
+                      <p>Bands</p>
+                    </a>
+                  </li> -->
+        
+                  <li class="nav-item d-flex align-items-center">
+                    <div class="hide-container" hidden>
+                      <i class="nc-icon nc-bell-55" style="font-size: 20px;"></i>
+                      <a href="{{url_for('show_messages')}}" class="ml-2" style="font-size: 20px;">
+                        Notifications
+                      </a>
+                    </div>
+                  </li>
+        
+                  <li class="nav-item d-flex align-items-center mb-3">
+                    <div class="hide-container" hidden>
+                      <i class="nc-icon nc-circle-10" style="font-size: 20px;"></i>
+                      <a href="{{url_for('user_profile', user_id=curr_user.id)}}" class="ml-2" style="font-size: 20px;">
+                        User Profile
+                      </a>
+                    </div>
+                  </li>
+                
+                </ul> 
+              </div>
+            </div>
+
+
             
-            <a class="navbar-link mr-2" href="{{url_for('user_profile', user_id=curr_user.id)}}">
-              <img src="{{url_for('static',filename=curr_user.profile_pic)}}" style="width:30px; height:30px; border-radius: 15px; border: solid gray 1px;" loading="lazy">
-            </a>
-            <a class="navbar-link mr-4" href="{{url_for('user_profile', user_id=curr_user.id)}}">@{{curr_user.username | e}}</a>
-            <a class="navbar-link" href="/logout">Logout</a>
+          </div>
+
+          <button class="navbar-toggler navbar-collapse-btn" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-bar navbar-kebab"></span>
+            <span class="navbar-toggler-bar navbar-kebab"></span>
+            <span class="navbar-toggler-bar navbar-kebab"></span>
+          </button>
+          <div class="collapse navbar-collapse justify-content-end" id="navigation">
+            <div class="navbar-nav">
+              <div class="nav-item ml-3">
+                <a class="navbar-link mr-2" href="{{url_for('user_profile', user_id=curr_user.id)}}">
+                  <img src="{{url_for('static',filename=curr_user.profile_pic)}}" style="width:30px; height:30px; border-radius: 15px; border: solid gray 1px;" loading="lazy">
+                </a>                
+                <a class="navbar-link mr-4" href="{{url_for('user_profile', user_id=curr_user.id)}}">@{{curr_user.username | e}}</a>
+              </div>
+              <div class="nav-item ml-3 my-0 d-flex align-items-center">
+                <a class="navbar-link" href="/logout">Logout</a>
+              </div>
+            </div>
+
           </div>
           
           
@@ -136,4 +228,11 @@
     </div>
   </div>
 
+{% endblock %}
+
+{% block all_scripts %}
+<script src="{{url_for('static',filename='js/sidebar.js')}}"></script>
+  {% block scripts %}
+  
+  {% endblock %}
 {% endblock %}
