@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  const BASE_URL = "http://localhost:5000";
+  const BASE_URL = window.location.protocol + "//" + window.location.host;
   const $searchForm = $("#search-form");
   const $searchBtn = $("#search-button");
   const $searchInput = $("#search-input");

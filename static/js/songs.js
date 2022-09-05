@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  const BASE_URL = "http://localhost:5000";
+  const BASE_URL = window.location.protocol + "//" + window.location.host;
 
   // Event handler for when the modal is triggered
   $("#addToPlaylist").on("show.bs.modal", async function (event) {
