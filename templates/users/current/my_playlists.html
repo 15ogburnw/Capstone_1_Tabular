@@ -4,7 +4,7 @@
 {% block playlists %}active{% endblock %}
 
 
-{% block panel_title %}PLAYLISTS{% endblock %}
+{% block panel_title %}MY PLAYLISTS{% endblock %}
 
 {% set liked_playlists = user.playlists | selectattr("user_id", "ne", user.id) | list %}
 {% set my_playlists = user.playlists | selectattr("user_id", "equalto", user.id) | list %}
