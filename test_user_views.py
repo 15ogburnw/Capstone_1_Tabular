@@ -197,6 +197,20 @@ class UserViewTestCase(TestCase):
             self.assertEqual(resp.status_code, 200)
         self.assertIn('Access Unauthorized!', str(resp.data))
 
+    def test_nonexistent_user_profile(self):
+        """
+        Test that a 404 is returned when attempting to access a user profile
+        that does not exist
+        """
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+            resp = c.get(
+                '/users/154877/profile')
+
+            self.assertEqual(resp.status_code, 404)
+
     def test_edit_profile_page(self):
         """Can user access the edit profile page if logged in?"""
 
@@ -309,6 +323,20 @@ class UserViewTestCase(TestCase):
             self.assertIn('You must be friends', str(resp.data))
             self.assertIn('DASHBOARD', str(resp.data))
 
+    def test_nonexistent_user_playlists_page(self):
+        """
+        Test that a 404 is returned when attempting to access the playlists
+        page for a user that does not exist
+        """
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+            resp = c.get(
+                '/users/154877/playlists')
+
+            self.assertEqual(resp.status_code, 404)
+
     def test_create_playlist(self):
         """User should be able to create a new playlist if logged in"""
 
@@ -395,6 +423,20 @@ class UserViewTestCase(TestCase):
             self.assertEqual(request.category, 'fr')
             self.assertEqual(resp.status_code, 200)
             self.assertIn('There is already', str(resp.data))
+
+    def test_request_nonexistent_user(self):
+        """
+        Test that a 404 is returned when attempting to send a friend request
+        to a user that does not exist
+        """
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+            resp = c.post(
+                '/users/request-friend/154877')
+
+            self.assertEqual(resp.status_code, 404)
 
     def test_already_friends(self):
         """Users should not be able to send a friend request to a user they are already friends with"""
@@ -484,6 +526,20 @@ class UserViewTestCase(TestCase):
             self.assertIn('testuser', str(resp.data))
             self.assertNotIn('user3', str(resp.data))
             self.assertNotIn('nathan', str(resp.data))
+
+    def test_nonexistent_user_friends_page(self):
+        """
+        Test that a 404 is returned when attempting to view the friends page
+        of a user that does not exist
+        """
+
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+            resp = c.get(
+                '/users/154877/friends')
+
+            self.assertEqual(resp.status_code, 404)
 
     def test_remove_friend(self):
         """

@@ -307,7 +307,7 @@ $(document).ready(function () {
       .addClass("col-2 d-flex align-items-center")
       .append(
         $("<img>")
-          .attr("src", `${user.profile_pic}`)
+          .attr("src", `/static/${user.profile_pic}`)
           .addClass("shadow-sm border")
           .attr("style", "width:50px;height:50px;border-radius:50px;")
       );

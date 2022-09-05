@@ -235,18 +235,12 @@ def search_page():
 def user_profile(user_id):
     """Display user profile page given a user ID"""
 
-    # # Check that a user is logged in, if not redirect
-    # if not g.user:
-    #     flash('Access Unauthorized! Please Login', 'danger')
-
-    #     return redirect('/')
-
     # If the user ID matches the current user's ID, display the user page for currently logged in user. Else, show
     # page of user matching user ID
     if user_id == g.user.id:
         return render_template('users/current/my_profile.html', user=g.user)
 
-    user = User.query.get(user_id)
+    user = User.query.get_or_404(user_id)
 
     return render_template('users/profile.html', user=user)
 
@@ -378,7 +372,7 @@ def user_playlists(user_id):
                 return redirect(url_for('user_playlists', user_id=g.user.id))
 
         else:
-            flash('You cannot create a playlist for another user!')
+            flash('You cannot create a playlist for another user!', 'danger')
             return redirect('/')
 
     if user_id == g.user.id:
@@ -400,14 +394,16 @@ def send_friend_request(user_id):
 
     if g.user.check_if_friends(user_id):
 
-        flash('You are already friends!')
+        flash('You are already friends!', 'danger')
         return redirect(request.referrer)
 
     elif g.user.check_pending_request(other_user_id=user_id):
 
-        flash('There is already a pending friend request!')
+        flash('There is already a pending friend request!', 'danger')
         return redirect(request.referrer)
 
+    # throw a 404 if user doesn't exist
+    check_if_user = User.query.get_or_404(user_id)
     # Create a friend request message to user matching user ID
     g.user.send_friend_request(user_id)
     db.session.commit()
@@ -421,13 +417,13 @@ def accept_friend_request(user_id):
 
     if g.user.check_if_friends(user_id):
 
-        flash('You are already friends!')
+        flash('You are already friends!', 'danger')
         return redirect(request.referrer)
 
     g.user.accept_friend_request(user_id)
     db.session.commit()
 
-    flash('You have successfully accepted the friend request!')
+    flash('You have successfully accepted the friend request!', 'success')
     return redirect(request.referrer)
 
 
@@ -498,7 +494,7 @@ def delete_playlist(playlist_id):
 
     # Check that the playlist creator is the same as the logged in user, if not redirect
     if g.user.id != playlist.creator.id:
-        flash("You may not delete another user's playlist!")
+        flash("You may not delete another user's playlist!", 'danger')
         return redirect('/')
 
     # Delete the playlist from the database and redirect to current user's playlists page
@@ -507,7 +503,7 @@ def delete_playlist(playlist_id):
     return redirect(url_for('user_playlists', user_id=g.user.id))
 
 
-@ app.route('/playlists/add-song', methods=["POST"])
+@app.route('/playlists/add-song', methods=["POST"])
 @login_required
 def add_song_to_playlist():
     """Add a song to a playlist"""
@@ -529,7 +525,7 @@ def add_song_to_playlist():
     for playlist in playlists:
 
         if playlist.user_id != g.user.id:
-            flash("You may not add a song to another user's playlist")
+            flash("You may not add a song to another user's playlist", 'danger')
             return redirect('/')
 
         playlist.add_song(songInfo['id'])
@@ -552,7 +548,7 @@ def remove_song_from_playlist(playlist_id):
 
     # Check that playlist creator ID matches the currently logged in user ID, if not redirect
     if playlist.user_id != g.user.id:
-        flash("You may not remove a song from another user's playlist")
+        flash("You may not remove a song from another user's playlist", 'danger')
         return redirect('/')
 
     # remove the song from the playlist
@@ -570,14 +566,19 @@ def like_playlist(playlist_id):
     playlist = Playlist.query.get_or_404(playlist_id)
 
     # Check if playlist is already in user's playlists, if it is redirect
-    if playlist in g.user.playlists:
-        flash('You already like this playlist!')
+    if playlist in g.user.playlists and playlist.creator.id != g.user.id:
+        flash('You already like this playlist!', 'danger')
+        return redirect(request.referrer)
+
+    elif playlist in g.user.playlists:
+        flash('You cannot like your own playlist!', 'danger')
         return redirect(request.referrer)
 
     # Add playlist to user's playlists and redirect
     g.user.playlists.append(playlist)
     db.session.commit()
 
+    flash('Playlist successfully added to liked playlists!', 'success')
     return redirect(request.referrer)
 
 
@@ -590,13 +591,14 @@ def unlike_playlist(playlist_id):
 
     # Check that playlist is present in user's playlists, if not redirect
     if playlist not in g.user.playlists:
-        flash('This playlist is not in your liked playlists!')
+        flash('This playlist is not in your liked playlists!', 'danger')
         return redirect(request.referrer)
 
-    # Remmove playlist from user's playlists and redirect
+    # Remove playlist from user's playlists and redirect
     g.user.playlists.remove(playlist)
     db.session.commit()
 
+    flash('Playlist successfully removed from your liked playlists!', 'danger')
     return redirect(request.referrer)
 
 

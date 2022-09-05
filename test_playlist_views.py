@@ -56,6 +56,14 @@ class PlaylistViewTestCase(TestCase):
         user3.id = 6745
         self.user3_id = 6745
 
+        user4 = User.register(username="user4",
+                              email="user4@test.com",
+                              password="testuser",
+                              first_name='user4',
+                              last_name=None)
+        user4.id = 76845
+        self.user4_id = 76845
+
         nathan = User.register(username='nathan', email='nathan@test.com',
                                password='nathan', first_name='nathan', last_name=None)
         nathan.id = 12647
@@ -74,7 +82,9 @@ class PlaylistViewTestCase(TestCase):
         user2p2 = Playlist(id=4444, name='user2 Favorites',
                            user_id=self.user2_id)
 
-        db.session.add_all([testuserp1, testuserp2, user2p1, user2p2])
+        user3p1 = Playlist(id=5555, name='user3 Jams', user_id=self.user3_id)
+
+        db.session.add_all([testuserp1, testuserp2, user2p1, user2p2, user3p1])
         db.session.commit()
 
         # Add playlist/user relationship for created playlists
@@ -82,13 +92,16 @@ class PlaylistViewTestCase(TestCase):
         pu2 = PlaylistUser(user_id=self.testuser_id, playlist_id=2222)
         pu3 = PlaylistUser(user_id=self.user2_id, playlist_id=3333)
         pu4 = PlaylistUser(user_id=self.user2_id, playlist_id=4444)
-        db.session.add_all([pu1, pu2, pu3, pu4])
+        pu5 = PlaylistUser(user_id=self.user3_id, playlist_id=5555)
+        db.session.add_all([pu1, pu2, pu3, pu4, pu5])
         db.session.commit()
 
-        # add one of user2's playlists to testuser's liked playlists
-        liked_playlist = PlaylistUser(
+        # add some iked playlists
+        liked_playlist1 = PlaylistUser(
             user_id=self.testuser_id, playlist_id=3333)
-        db.session.add(liked_playlist)
+        liked_playlist2 = PlaylistUser(
+            user_id=self.nathan_id, playlist_id=5555)
+        db.session.add_all([liked_playlist1, liked_playlist2])
         db.session.commit()
 
         # Add friend relationships
@@ -119,74 +132,96 @@ class PlaylistViewTestCase(TestCase):
         ps1 = PlaylistSong(song_id=4444, playlist_id=1111)
         ps2 = PlaylistSong(song_id=5555, playlist_id=1111)
         ps3 = PlaylistSong(song_id=6666, playlist_id=3333)
-        db.session.add_all([ps1, ps2, ps3])
+        ps4 = PlaylistSong(song_id=4444, playlist_id=5555)
+        db.session.add_all([ps1, ps2, ps3, ps4])
         db.session.commit()
 
         self.testuser = User.query.get(8989)
         self.user2 = User.query.get(9546)
         self.user3 = User.query.get(6745)
+        self.user4 = User.query.get(76845)
         self.nathan = User.query.get(12647)
         self.testuserp1 = Playlist.query.get(1111)
         self.testuserp2 = Playlist.query.get(2222)
         self.user2p1 = Playlist.query.get(3333)
-        self.tuser2p1 = Playlist.query.get(4444)
+        self.user2p2 = Playlist.query.get(4444)
+        self.user3p1 = Playlist.query.get(5555)
+        self.song1 = Song.query.get(4444)
+        self.song2 = Song.query.get(5555)
+        self.song3 = Song.query.get(6666)
 
-    # def test_own_playlist_page(self):
-    #     """
-    #     Test that a user can view their own playlist page if logged in,
-    #     with options to add or remove songs, or delete playlist
-    #     """
+    def test_own_playlist_page(self):
+        """
+        Test that a user can view their own playlist page if logged in,
+        with options to add or remove songs, or delete playlist
+        """
 
-    #     with self.client as c:
+        with self.client as c:
 
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
 
-    #         resp = c.get(f'/playlists/{self.testuserp1.id}')
+            resp = c.get(f'/playlists/{self.testuserp1.id}')
 
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('Jammin', str(resp.data))
-    #         self.assertIn('Rock and Roll', str(resp.data))
-    #         self.assertNotIn('Angie', str(resp.data))
-    #         self.assertIn('Delete Playlist', str(resp.data))
-    #         self.assertIn('Add Songs', str(resp.data))
-    #         self.assertIn('Remove From Playlist', str(resp.data))
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('Jammin', str(resp.data))
+            self.assertIn('Rock and Roll', str(resp.data))
+            self.assertNotIn('Angie', str(resp.data))
+            self.assertIn('Delete Playlist', str(resp.data))
+            self.assertIn('Add Songs', str(resp.data))
+            self.assertIn('Remove From Playlist', str(resp.data))
 
-    # def test_other_playlist_page(self):
-    #     """
-    #     Test that a user can view another user's playlist page if logged in,
-    #     but does not have the option to add songs or delete playlist
-    #     """
+    def test_other_playlist_page(self):
+        """
+        Test that a user can view another user's playlist page if logged in,
+        but does not have the option to add songs or delete playlist
+        """
 
-    #     with self.client as c:
+        with self.client as c:
 
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
 
-    #         resp = c.get(f'/playlists/{self.user2p1.id}')
+            resp = c.get(f'/playlists/{self.user2p1.id}')
 
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertNotIn('Jammin', str(resp.data))
-    #         self.assertNotIn('Rock and Roll', str(resp.data))
-    #         self.assertIn('Angie', str(resp.data))
-    #         self.assertNotIn('Delete Playlist', str(resp.data))
-    #         self.assertNotIn('Add Songs', str(resp.data))
-    #         self.assertNotIn('Remove From Playlist', str(resp.data))
+            self.assertEqual(resp.status_code, 200)
+            self.assertNotIn('Jammin', str(resp.data))
+            self.assertNotIn('Rock and Roll', str(resp.data))
+            self.assertIn('Angie', str(resp.data))
+            self.assertNotIn('Delete Playlist', str(resp.data))
+            self.assertNotIn('Add Songs', str(resp.data))
+            self.assertNotIn('Remove From Playlist', str(resp.data))
 
-    # def test_likes_page(self):
-    #     """Test that a user can view their liked songs page if logged in"""
+    def test_nonexistent_playlist_page(self):
+        """
+        Test that a 404 is returned if a user tries to view the page
+        for a playlist that does not exist
+        """
+        with self.client as c:
 
-    #     with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
 
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
+            resp = c.get('/playlists/12548')
 
-    #         resp = c.get('/playlists/0')
+            self.assertEqual(resp.status_code, 404)
+            self.assertIn(
+                'The resource or page you are looking for', str(resp.data))
 
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('Jammin', str(resp.data))
-    #         self.assertIn('Rock and Roll', str(resp.data))
-    #         self.assertNotIn('Angie', str(resp.data))
+    def test_likes_page(self):
+        """Test that a user can view their liked songs page if logged in"""
+
+        with self.client as c:
+
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+
+            resp = c.get('/playlists/0')
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('Jammin', str(resp.data))
+            self.assertIn('Rock and Roll', str(resp.data))
+            self.assertNotIn('Angie', str(resp.data))
 
     def test_delete_own_playlist(self):
         """Test that the user can delete their own playlist if logged in"""
@@ -221,350 +256,257 @@ class PlaylistViewTestCase(TestCase):
             self.assertIn('You may not delete', str(resp.data))
             self.assertIn('DASHBOARD', str(resp.data))
 
-    # def test_my_profile(self):
-    #     """Test if user can view their profile page if logged in"""
+    def test_delete_nonexistent_playlist(self):
+        """
+        Test that a 404 is returned if a user tries to delete
+        a playlist that does not exist
+        """
+        with self.client as c:
+
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+
+            resp = c.post('/playlists/12548/delete')
+
+            self.assertEqual(resp.status_code, 404)
+            self.assertIn(
+                'The resource or page you are looking for', str(resp.data))
+
+    def test_add_song_to_own_playlist(self):
+        """Test if user can add a song to their own playlist"""
+
+        self.assertEqual(len(self.testuserp2.songs), 0)
+        with self.client as c:
+
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+
+            obj = {'songInfo': {
+                'id': self.song1.id,
+                'title': self.song1.title,
+                'artist': self.song1.artist,
+                'tab_url': self.song1.tab_url
+            }, 'playlists': [{"id": self.testuserp2.id, "user_id": self.testuser.id, "name": self.testuserp2.name}]
+
+            }
+
+            resp = c.post('/playlists/add-song',
+                          json={"json": json.dumps(obj)}, headers={
+                              "Referer": '/playlists/2222'
+                          }, follow_redirects=True)
+            self.testuserp2 = Playlist.query.get(2222)
+            self.assertEqual(len(self.testuserp2.songs), 1)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn(self.testuserp2.name, str(resp.data))
+            self.assertIn(self.song1.title, str(resp.data))
+
+    def test_add_song_to_other_user_playlist(self):
+        """Test that user cannot add a song to another user's playlist"""
+
+        self.assertEqual(len(self.user2p2.songs), 0)
+        with self.client as c:
+
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+
+            obj = {'songInfo': {
+                'id': self.song1.id,
+                'title': self.song1.title,
+                'artist': self.song1.artist,
+                'tab_url': self.song1.tab_url
+            }, 'playlists': [{"id": self.user2p2.id, "user_id": self.user2.id, "name": self.user2p2.name}]
+
+            }
+
+            resp = c.post('/playlists/add-song',
+                          json={"json": json.dumps(obj)}, follow_redirects=True)
+            self.user2p2 = Playlist.query.get(4444)
+            self.assertEqual(len(self.user2p2.songs), 0)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('DASHBOARD', str(resp.data))
+            self.assertIn('You may not', str(resp.data))
+
+    def test_remove_song_from_own_playlist(self):
+        """Test if user can remove a song from one of their own playlists"""
+
+        self.assertEqual(len(self.user2p1.songs), 1)
+        with self.client as c:
+
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.user2.id
+
+            obj = {
+                'id': self.song3.id,
+                'title': self.song3.title,
+                'artist': self.song3.artist,
+                'tab_url': self.song3.tab_url
+            }
+
+            resp = c.post(f'/playlists/{self.user2p1.id}/remove-song', json={"json": json.dumps(obj)}, headers={
+                "Referer": f'/playlists/{self.user2p1.id}'}, follow_redirects=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.user2p1 = Playlist.query.get(3333)
+            self.assertIn(
+                self.user2p1.name, str(resp.data))
+            self.assertNotIn(self.song3.title, str(resp.data))
+            self.assertEqual(len(self.user2p1.songs), 0)
+
+    def test_remove_song_from_other_user_playlist(self):
+        """Test that the user cannot remove a song from another user's playlist"""
+
+        self.assertEqual(len(self.user3p1.songs), 1)
+        with self.client as c:
+
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+
+            obj = {
+                'id': self.song1.id,
+                'title': self.song1.title,
+                'artist': self.song1.artist,
+                'tab_url': self.song1.tab_url
+            }
 
-    #     with self.client as c:
+            resp = c.post(f'/playlists/{self.user3p1.id}/remove-song',
+                          json={"json": json.dumps(obj)}, follow_redirects=True)
 
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
+            self.assertEqual(resp.status_code, 200)
+            self.user3p1 = Playlist.query.get(5555)
+            self.assertIn('DASHBOARD', str(resp.data))
+            self.assertIn('You may not remove', str(resp.data))
+            self.assertEqual(len(self.user3p1.songs), 1)
 
-    #         resp = c.get(f'/users/{self.testuser.id}/profile')
+    def test_remove_from_nonexistent_playlist(self):
+        """
+        Test that a 404 is returned if a user tries to remove a song
+        from a playlist that does not exist
+        """
+        with self.client as c:
 
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('Edit Profile', str(resp.data))
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
 
-    # def test_other_user_profile(self):
-    #     """Test if user can view other user's profile if logged in"""
+            obj = {
+                'id': self.song1.id,
+                'title': self.song1.title,
+                'artist': self.song1.artist,
+                'tab_url': self.song1.tab_url
+            }
+
+            resp = c.post('/playlists/12548/remove-song',
+                          json={"json": json.dumps(obj)})
 
-    #     with self.client as c:
+            self.assertEqual(resp.status_code, 404)
+            self.assertIn(
+                'The resource or page you are looking for', str(resp.data))
 
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
+    def test_like_playlist(self):
+        """Test that a user can like another user's playlist"""
 
-    #         resp = c.get(f'/users/{self.user2.id}/profile')
+        self.assertEqual(len(self.user3.playlists), 1)
+        with self.client as c:
+
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.user3.id
 
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn(
-    #             f"@{self.user2.username}", str(resp.data))
-    #         self.assertNotIn('Edit Profile', str(resp.data))
+            resp = c.post(f'/playlists/{self.user2p1.id}/like', headers={
+                          'Referer': f'/users/{self.user3.id}/playlists'}, follow_redirects=True)
 
-    # def test_user_profile_unauthorized(self):
-    #     """
-    #     Can a user access a user profile page if not logged in?
-    #     This test covers any route that includes a '@login_required' decorator
-    #     """
-    #     with self.client as c:
-
-    #         resp = c.get(f'/users/{self.user2.id}/profile')
+            self.user3 = User.query.get(self.user3.id)
+            self.assertEqual(len(self.user3.playlists), 2)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('Playlist successfully added', str(resp.data))
+            self.assertIn(self.user2p1.name, str(resp.data))
 
-    #         self.assertEqual(resp.status_code, 302)
-
-    #         resp = c.get(f'/users/{self.user2.id}/profile',
-    #                      follow_redirects=True)
-    #         self.assertEqual(resp.status_code, 200)
-    #     self.assertIn('Access Unauthorized!', str(resp.data))
-
-    # def test_edit_profile_page(self):
-    #     """Can user access the edit profile page if logged in?"""
-
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
-
-    #         resp = c.get(f'users/profile/edit')
-
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('Delete Profile', str(resp.data))
-
-    # def test_delete_profile(self):
-    #     """Can user delete their profile if logged in?"""
-
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
-
-    #         resp = c.post(f'users/profile/delete', follow_redirects=True)
-
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('Get Started', str(resp.data))
-
-    #         self.assertIsNone(User.query.filter_by(
-    #             id=self.testuser.id).one_or_none())
-
-    # def test_add_like(self):
-    #     """User should be able to like a song if logged in"""
-
-    #     obj = {
-    #         'id': self.song2.id,
-    #         'title': self.song2.title,
-    #         'artist': self.song2.artist,
-    #         'tab_url': self.song2.tab_url
-    #     }
-
-    #     self.assertEqual(len(self.testuser.likes), 1)
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
-    #         resp = c.post('/users/likes', json={"json": json.dumps(obj)})
-    #         self.testuser = User.query.get(self.testuser_id)
-    #         self.assertEqual(len(self.testuser.likes), 2)
-
-    # def test_remove_like(self):
-    #     """User should be able to remove a like if logged in and song is already liked"""
-
-    #     obj = {
-    #         'id': self.song2.id,
-    #         'title': self.song2.title,
-    #         'artist': self.song2.artist,
-    #         'tab_url': self.song2.tab_url
-    #     }
-
-    #     self.assertEqual(len(self.user2.likes), 1)
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.user2.id
-    #         resp = c.post('/users/likes', json={"json": json.dumps(obj)})
-    #         self.user2 = User.query.get(self.user2_id)
-    #         self.assertEqual(len(self.user2.likes), 0)
-
-    # def test_my_playlists_page(self):
-    #     """
-    #     Is the user able to access their playlists page if logged in?
-    #     Does it show the correct playlists?
-    #     """
-
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
-    #         resp = c.get(
-    #             f'/users/{self.testuser.id}/playlists')
-
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('testuser Jams', str(resp.data))
-    #         self.assertIn('testuser Favorites', str(resp.data))
-    #         self.assertIn('user2 Jams', str(resp.data))
-    #         self.assertNotIn('user2 Favorites', str(resp.data))
-    #         self.assertIn('Create a New Playlist', str(resp.data))
-
-    # def test_friend_playlists_page(self):
-    #     """Can user access another a friend's playlists page if logged in?"""
-
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
-    #         resp = c.get(
-    #             f'/users/{self.user2.id}/playlists')
-
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('user2 Jams', str(resp.data))
-    #         self.assertNotIn('testuser Jams', str(resp.data))
-    #         self.assertNotIn('Create a New Playlist', str(resp.data))
-
-    # def test_non_friend_playlists_page(self):
-    #     """
-    #     User should not be able to access a user's playlists page
-    #     if they are not friends
-    #     """
-
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
-    #         resp = c.get(
-    #             f'/users/{self.nathan.id}/playlists', follow_redirects=True)
-
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('You must be friends', str(resp.data))
-    #         self.assertIn('DASHBOARD', str(resp.data))
-
-    # def test_create_playlist(self):
-    #     """User should be able to create a new playlist if logged in"""
-
-    #     self.assertEqual(len(self.testuser.playlists), 3)
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
-    #         resp = c.post(
-    #             f'/users/{self.testuser.id}/playlists', data={'playlist-name': 'test playlist'}, follow_redirects=True)
-
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('Playlist successfully', str(resp.data))
-    #         self.assertIn('test playlist', str(resp.data))
-
-    #         self.testuser = User.query.get(self.testuser_id)
-    #         self.assertEqual(len(self.testuser.playlists), 4)
-
-    # def test_create_playlist_unauthorized(self):
-    #     """User should not be able to create a playlist for another user"""
-
-    #     self.assertEqual(len(self.user2.playlists), 2)
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
-    #         resp = c.post(
-    #             f'/users/{self.user2.id}/playlists', data={'playlist-name': 'test playlist'}, follow_redirects=True)
-
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('You cannot create', str(resp.data))
-    #         self.assertIn('DASHBOARD', str(resp.data))
-
-    #         self.user2 = User.query.get(self.user2_id)
-    #         self.assertEqual(len(self.user2.playlists), 2)
-
-    # def test_duplicate_playlist(self):
-    #     """User should not be able to create a playlist with a duplicate name"""
-
-    #     self.assertEqual(len(self.user2.playlists), 2)
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.user2.id
-    #         resp = c.post(
-    #             f'/users/{self.user2.id}/playlists', data={'playlist-name': 'user2 Jams'}, headers={
-    #                 "Referer": f'/users/{self.user2.id}/playlists'
-    #             }, follow_redirects=True)
-
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('PLAYLISTS', str(resp.data))
-    #         self.user2 = User.query.get(self.user2_id)
-    #         self.assertEqual(len(self.user2.playlists), 2)
-
-    # def test_send_friend_request(self):
-    #     """User should be able to send a request to a user they are not friends with"""
-
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
-
-    #         resp = c.post(f'/users/request-friend/{self.nathan.id}', headers={
-    #                       'Referer': f'/users/{self.nathan.id}/profile'}, follow_redirects=True)
-
-    #         request = Message.query.filter(Message.author_id == self.testuser.id,
-    #                                        Message.recipient_id == self.nathan.id).one_or_none()
-
-    #         self.assertIsNotNone(request)
-    #         self.assertEqual(request.category, 'fr')
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('Friend Request Pending', str(resp.data))
-
-    # def test_send_duplicate_request(self):
-    #     """Users should not be able to send duplicate requests"""
-
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.nathan.id
-
-    #         resp = c.post(f'/users/request-friend/{self.user3.id}', headers={
-    #                       'Referer': f'/users/{self.user3.id}/profile'}, follow_redirects=True)
-
-    #         request = Message.query.filter(Message.author_id == self.nathan.id,
-    #                                        Message.recipient_id == self.user3.id).one_or_none()
-
-    #         self.assertIsNotNone(request)
-    #         self.assertEqual(request.category, 'fr')
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('There is already', str(resp.data))
-
-    # def test_already_friends(self):
-    #     """Users should not be able to send a friend request to a user they are already friends with"""
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
-
-    #         resp = c.post(f'/users/request-friend/{self.user2.id}', headers={
-    #                       'Referer': f'/users/{self.user2.id}/profile'}, follow_redirects=True)
-
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('You are already friends!', str(resp.data))
-
-    # def test_accept_request(self):
-    #     """Users should be able to accept a pending friend request"""
-    #     request = Message.query.filter(
-    #         Message.author_id == self.nathan.id, Message.recipient_id == self.user2.id).one_or_none()
-    #     self.assertIsNotNone(request)
-    #     self.assertEqual(len(self.user2.friends), 1)
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.user2.id
-
-    #         resp = c.post(f'/users/accept-request/{self.nathan.id}', headers={
-    #                       'Referer': '/messages'}, follow_redirects=True)
-
-    #         request = Message.query.filter(
-    #             Message.author_id == self.nathan.id, Message.recipient_id == self.user2.id).one_or_none()
-    #         self.assertIsNone(request)
-
-    #         self.user2 = User.query.get(self.user2_id)
-    #         self.assertEqual(len(self.user2.friends), 2)
-
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('You have successfully', str(resp.data))
-
-    # def test_deny_request(self):
-    #     """Users should be able to deny a pending friend request"""
-
-    #     request = Message.query.filter(
-    #         Message.author_id == self.nathan.id, Message.recipient_id == self.user3.id).one_or_none()
-    #     self.assertIsNotNone(request)
-    #     self.assertEqual(len(self.user3.friends), 1)
-
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.user3.id
-
-    #         resp = c.post(f'/users/deny-request/{self.nathan.id}', headers={
-    #                       'Referer': '/messages'}, follow_redirects=True)
-
-    #         request = Message.query.filter(
-    #             Message.author_id == self.nathan.id, Message.recipient_id == self.user3.id).one_or_none()
-    #         self.assertIsNone(request)
-
-    #         self.user3 = User.query.get(self.user3_id)
-    #         self.assertEqual(len(self.user3.friends), 1)
-
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('MESSAGES', str(resp.data))
-
-    # def test_my_friends_page(self):
-    #     """User should be able to view their friends page if logged in"""
-
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
-    #         resp = c.get(
-    #             f'/users/{self.testuser.id}/friends')
-
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('user2', str(resp.data))
-    #         self.assertIn('user3', str(resp.data))
-    #         self.assertIn('MY FRIENDS', str(resp.data))
-    #         self.assertNotIn('nathan', str(resp.data))
-
-    # def test_user_friends_page(self):
-    #     """User should be able to view other users' friends page if logged in"""
-
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
-    #         resp = c.get(
-    #             f'/users/{self.user2.id}/friends')
-
-    #         self.assertEqual(resp.status_code, 200)
-    #         self.assertIn('testuser', str(resp.data))
-    #         self.assertNotIn('user3', str(resp.data))
-    #         self.assertNotIn('nathan', str(resp.data))
-
-    # def test_remove_friend(self):
-    #     """
-    #     User should be able to remove a friend if logged in and friends with user.
-    #     """
-
-    #     with self.client as c:
-    #         with c.session_transaction() as sess:
-    #             sess[CURR_USER_KEY] = self.testuser.id
-
-    #         # test for a user that testuser is friends with
-    #         self.assertEqual(len(self.testuser.friends), 2)
-    #         resp = c.post(
-    #             f'/users/remove-friend/{self.user2.id}')
-    #         self.assertEqual(resp.status_code, 302)
-    #         self.assertEqual(len(self.testuser.friends), 1)
+    def test_like_own_playlist(self):
+        """Test that a user cannot like their own playlist"""
+
+        self.assertEqual(len(self.user2.playlists), 2)
+        with self.client as c:
+
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.user2.id
+
+            resp = c.post(f'/playlists/{self.user2p1.id}/like', headers={
+                          'Referer': f'/users/{self.user2.id}/playlists'}, follow_redirects=True)
+
+            self.user2 = User.query.get(self.user2.id)
+            self.assertEqual(len(self.user2.playlists), 2)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('You cannot like', str(resp.data))
+            self.assertIn(self.user2p1.name, str(resp.data))
+            self.assertIn(self.user2p2.name, str(resp.data))
+
+    def test_like_already_liked_playlist(self):
+        """Test that a user cannot like a playlist that they have already liked"""
+
+        self.assertEqual(len(self.nathan.playlists), 1)
+        with self.client as c:
+
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.nathan.id
+
+            resp = c.post(f'/playlists/{self.user3p1.id}/like', headers={
+                          'Referer': f'/users/{self.nathan.id}/playlists'}, follow_redirects=True)
+
+            self.nathan = User.query.get(self.nathan.id)
+            self.assertEqual(len(self.nathan.playlists), 1)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('You already like', str(resp.data))
+            self.assertIn(self.user3p1.name, str(resp.data))
+
+    def test_like_nonexistent_playlist(self):
+        """Test that a 404 is returned if a user tries to like a playlist that does not exist"""
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+
+            resp = c.post(f'playlists/837364/like')
+
+            self.assertEqual(resp.status_code, 404)
+
+    def test_unlike_playlist(self):
+        """Test that a user can unlike a liked playlist"""
+
+        self.assertEqual(len(self.nathan.playlists), 1)
+        with self.client as c:
+
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.nathan.id
+
+            resp = c.post(f'/playlists/{self.user3p1.id}/unlike', headers={
+                          'Referer': f'/users/{self.nathan.id}/playlists'}, follow_redirects=True)
+
+            self.nathan = User.query.get(self.nathan.id)
+            self.assertEqual(len(self.nathan.playlists), 0)
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('Playlist successfully removed', str(resp.data))
+            self.assertNotIn(self.user3p1.name, str(resp.data))
+
+    def test_unlike_playlist_not_liked(self):
+        """
+        Test that a user cannot unlike a playlist that is not in 
+        their liked playlists
+        """
+        with self.client as c:
+
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.user4.id
+
+            resp = c.post(f'/playlists/{self.user3p1.id}/unlike', headers={
+                          'Referer': f'/users/{self.user4.id}/playlists'}, follow_redirects=True)
+
+            self.assertEqual(resp.status_code, 200)
+            self.assertIn('This playlist is not', str(resp.data))
+            self.assertIn('MY PLAYLISTS', str(resp.data))
+
+    def test_unlike_nonexistent_playlist(self):
+        """Test that a 404 is returned if a user tries to unlike a playlist that does not exist"""
+        with self.client as c:
+            with c.session_transaction() as sess:
+                sess[CURR_USER_KEY] = self.testuser.id
+
+            resp = c.post(f'playlists/837364/unlike')
+
+            self.assertEqual(resp.status_code, 404)
