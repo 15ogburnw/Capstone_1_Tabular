@@ -56,34 +56,6 @@ class PlaylistSong(db.Model):
         'songs.id', ondelete='cascade'), primary_key=True)
 
 
-# ************ REVISIT LATER *************
-
-# class BandMember(db.Model):
-
-#     """Relationship for members of a band"""
-
-#     __tablename__ = 'bands_members'
-
-#     band_id = db.Column(db.Integer, db.ForeignKey(
-#         'bands.id', ondelete='cascade'), primary_key=True)
-
-#     user_id = db.Column(db.Integer, db.ForeignKey(
-#         'users.id', ondelete='cascade'), primary_key=True)
-
-
-# class BandPlaylist(db.Model):
-
-#     """Relationship for playlists that belong to a band"""
-
-#     __tablename__ = 'bands_playlists'
-
-#     band_id = db.Column(db.Integer, db.ForeignKey(
-#         'bands.id', ondelete='cascade'), primary_key=True)
-
-#     playlist_id = db.Column(db.Integer, db.ForeignKey(
-#         'playlists.id', ondelete='cascade'), primary_key=True)
-
-
 class User(db.Model):
 
     """A User in the application"""
@@ -376,36 +348,6 @@ class PlaylistUser(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey(
         'users.id', ondelete='cascade'), primary_key=True)
 
-# ************** REVISIT LATER *****************
-
-# class Band(db.Model):
-
-#     """Model for a 'band' or group of users in the system"""
-
-#     __tablename__ = 'bands'
-
-#     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-
-#     name = db.Column(db.String(50), nullable=False, unique=True)
-
-#     genre = db.Column(db.String(30), nullable=True)
-
-#     description = db.Column(db.Text, nullable=True)
-
-#     band_pic = db.Column(db.Text, nullable=True,
-#                          default='https://www.pngitem.com/pimgs/m/19-195664_rock-band-clip-art-musical-ensemble-silhouette-vector.png')
-
-#     playlists = db.relationship('Playlist', secondary='bands_playlists')
-
-#     members = db.relationship(
-#         'User', secondary='bands_members', backref='bands')
-
-#     messages = db.relationship('Message')
-
-#     def __repr__(self):
-
-#         return f"<Band {self.name}>"
-
 
 class Message(db.Model):
 
@@ -425,9 +367,6 @@ class Message(db.Model):
     recipient_id = db.Column(
         db.Integer, db.ForeignKey('users.id'), nullable=True)
 
-    # band_id = db.Column(db.Integer, db.ForeignKey(
-    #     'bands.id', ondelete='cascade'), nullable=True)
-
     # To be used for future messaging features
     time_sent = db.Column(db.DateTime, nullable=False,
                           default=datetime.utcnow())
@@ -437,8 +376,6 @@ class Message(db.Model):
 
     recipient = db.relationship(
         'User', primaryjoin='Message.recipient_id == User.id', backref='received_msgs')
-
-# band = db.relationship('Band', primaryjoin='Message.band_id == Band.id')
 
 
 def connect_db(app):
