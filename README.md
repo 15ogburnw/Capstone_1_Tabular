@@ -1,8 +1,8 @@
 # Tabular
 
-Tabular is a simple extension of the popular guitar, drum, and bass tab platform Songsterr. Tabular was designed as a more user-friendly interface for creating and organizing playlists of Songsterr tabs, as well as adding a social element to the user experience. The app contains basic user authentication and profile customization, and allows users to connect with other musicians to view and save their playlists. The application is hosted on Heroku and can be accessed at the link below:
+Tabular is a simple extension of the popular guitar, drum, and bass tab platform Songsterr. Tabular was designed as a more user-friendly interface for creating and organizing playlists of Songsterr tabs, as well as adding a social element to the user experience. The app contains basic user authentication and profile customization, and allows users to connect with other musicians to view and save their playlists. The application is hosted on Render and can be accessed at the link below:
 
-[Tabular](https://tabular-capstone.herokuapp.com/)
+[Tabular](https://tabular-miu1.onrender.com/)
 
 ## Features/User Flow
 
